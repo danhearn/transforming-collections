@@ -1,0 +1,37 @@
+{
+  "malaysia": {
+    "track1": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/ZAPIN_TENGU.mid",
+    "track2": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/ZAPIN_BEAT.mid"
+  },
+  "vietnam": {
+    "track1": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/TIKTOK_1.mid",
+    "track2": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/TIKTOK_2.mid"
+  },
+  "myanmar": {
+    "track1": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/MYANMAR1.mid"
+  },
+  "indonesia": {
+    "track1": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/MANUK_DALDALI_(INDO).mid",
+    "track2": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/TRACK2_(INDO).mid"
+  },
+  "singapore": {
+    "track1": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/RASA_SAYANG_(SINGA).mid",
+    "track2": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/SHAKE_(SINGA).mid"
+  },
+  "thailand": {
+    "track1": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/THAI.mid",
+    "track2": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/THAI2.mid"
+  },
+  "laos": {
+    "track1": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/LAOS1.mid"
+  },
+  "cambodia": {
+    "track1": "/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/CAMBODIA1.mid"
+  },
+  "philippines": {
+    "track1":"/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/PHIL.mid"
+  },
+  "no-country": {
+    "track1":"/home/tanc/Documents/transforming-collections-erika-tan/app/data/ding/midi/NO_COUNTRY.mid"
+  }
+}
