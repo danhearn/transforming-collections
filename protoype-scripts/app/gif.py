@@ -5,6 +5,8 @@ from PIL import Image, ImageSequence
 from PIL.Image import Transpose
 import numpy as np
 import ctypes
+import _thread as thread
+import time
 
 class GifPlayer:
     def __init__(self, gifs_path):
@@ -215,6 +217,15 @@ class GifPlayer:
             glfw.poll_events()
         self.terminate()
 
-if __name__ == '__main__':
+def run_gif_player():
     player = GifPlayer("./data/gifs")
     player.run()
+
+if __name__ == '__main__':
+    try:
+        thread.start_new_thread(run_gif_player, ())
+        # Keep the main thread alive with a sleep loop
+        while True:
+            time.sleep(1)
+    except Exception as e:
+        print(f"An error occurred in the main thread: {e}")
