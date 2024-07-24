@@ -1,8 +1,9 @@
 #version 330 core
+out vec4 fragColor;
 
 in vec2 fragUV;
-out vec3 color;
+uniform sampler2D gifTexture;
 
 void main(){
-    color = vec3(fragUV, 1.0);
+    fragColor = texture(gifTexture, fragUV);
 }
