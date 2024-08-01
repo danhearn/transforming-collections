@@ -7,7 +7,7 @@ print("hello! This script is working :)")
 pd_executable = '/Applications/Pd-0.55-0.app/Contents/Resources/bin/pd'
 
 # Path to the Pd patch
-pd_test_path = '/Users/erika/Desktop/TANC/test_bootscript/test.pd'
+pd_test_path = '/Users/erika/Documents/Github/transforming-collections/prototype-scripts/test_bootscript/test.pd'
 
 # Check if Pd executable exists
 if not os.path.isfile(pd_executable):
