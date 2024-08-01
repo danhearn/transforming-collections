@@ -21,7 +21,6 @@ class GifPlayer:
             
             title = "~GIF+PLAYER*"
             primary_monitor = glfw.get_primary_monitor()
-            video_mode = glfw.get_video_mode(primary_monitor)
             window_width = 1920
             window_height= 1080
             self.window = glfw.create_window(window_width, window_height, title, primary_monitor, None)
@@ -29,17 +28,15 @@ class GifPlayer:
                 glfw.terminate()
                 sys.exit(2)
             glfw.make_context_current(self.window)
-            # glfw.swap_interval(0) #(turns of V-Sync)
             gl.glViewport(0, 0, window_width, window_height)
-            gl.glClearColor(0, 1.0, 0.0, 0)
+            gl.glClearColor(0.0, 0.0, 0.0, 1.0)
             
         except Exception as e:
             glfw.terminate()
             raise e
         
-        # Load the gifs
-        #TODO stress test how many gifs can i load actually? do i need to be smart/cache?
-        self.gifs = self.load_gifs(gifs_path)
+        self.all_gif_textures = []
+        self.gifs_data = self.load_gifs(gifs_path)
         self.load_all_textures()
         self.create_vertex_array_object()
         self.create_vertex_buffer()
@@ -48,7 +45,7 @@ class GifPlayer:
         self.last_update_time = 0
         self.frame_index = 0
         self.frame_duration = 1.0 / 24  # 24 fps
-        self.active_gif = 0
+        self.active_gif_index = 0
 
     def create_vertex_array_object(self):
         self.vertex_array_id = gl.glGenVertexArrays(1)
@@ -96,8 +93,9 @@ class GifPlayer:
             gl.GL_VERTEX_SHADER: self.load_shader_source("./gif_shader/gif.vert"),
             gl.GL_FRAGMENT_SHADER: self.load_shader_source("./gif_shader/gif.frag")
         }
+
         self.program_id = gl.glCreateProgram()
-        # try:
+        
         self.shader_ids = []
         for shader_type, shader_src in shaders.items():
             shader_id = gl.glCreateShader(shader_type)
@@ -109,7 +107,7 @@ class GifPlayer:
             info_log_len = gl.glGetShaderiv(shader_id, gl.GL_INFO_LOG_LENGTH)
             if info_log_len:
                 logmsg = gl.glGetShaderInfoLog(shader_id)
-                print("Shader compile error:" + logmsg)
+                print("Shader compile error:" + logmsg.decode('utf-8'))
                 sys.exit(10)
             
             gl.glAttachShader(self.program_id, shader_id)
@@ -122,7 +120,7 @@ class GifPlayer:
         info_log_len = gl.glGetProgramiv(self.program_id, gl.GL_INFO_LOG_LENGTH)
         if info_log_len:
             logmsg = gl.glGetProgramInfoLog(self.program_id)
-            print("Shader linking error:" + logmsg)
+            print("Shader linking error:" + logmsg.decode('utf-8'))
             sys.exit(11)
         
         gl.glUseProgram(self.program_id)
@@ -131,7 +129,7 @@ class GifPlayer:
     def load_gifs(self, gifs_path):
         gifs = []
         for file_name in os.listdir(gifs_path):
-            if file_name.endswith('.gif'):
+            if file_name.endswith('.gif') or file_name.endswith('.GIF'):
                 gif_path = os.path.join(gifs_path, file_name)
                 with Image.open(gif_path) as im:
                     frames = []
@@ -146,26 +144,32 @@ class GifPlayer:
     
     def make_texture_from_frame(self, frame_data):
         image_bytes, w, h = frame_data
+
+        # Generate a texture and bind a texture
         tex = gl.glGenTextures(1)
         gl.glBindTexture(gl.GL_TEXTURE_2D, tex)
-        gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_REPEAT)
-        gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_REPEAT)
+
+        # Set the texture parameters
+        gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_BORDER)
+        gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_BORDER)
         gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR_MIPMAP_LINEAR)
         gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+
+        # Assign an image to the texture and generate the mip map
         gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGB, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, image_bytes)
         gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
-        return tex
+
+        return tex, w, h
 
     def load_all_textures(self):
-        self.all_gif_textures = []
-        for gif in self.gifs:
+        for gif in self.gifs_data:
             all_textures_from_this_gif = []
             for frame_data in gif:
                 single_frame_texture = self.make_texture_from_frame(frame_data)
                 all_textures_from_this_gif.append(single_frame_texture)
-                del frame_data
-            gc.collect()
             self.all_gif_textures.append(all_textures_from_this_gif)
+        del self.gifs_data
+        gc.collect
     
     def terminate(self):
         gl.glDisableVertexAttribArray(0)
@@ -187,34 +191,50 @@ class GifPlayer:
         return fps
 
     def update_frame_index(self):
+        self.current_time = glfw.get_time()
         if self.current_time - self.last_update_time >= self.frame_duration:
-            self.frame_index = (self.frame_index + 1) % len(self.all_gif_textures[self.active_gif])
+            self.frame_index = (self.frame_index + 1) % len(self.all_gif_textures[self.active_gif_index])
             self.last_update_time = self.current_time
 
-    def render(self):
-        # Clear the background
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        # Update gif textures
+    def set_tex_dimensions(self, w, h):
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_w"), w)
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_h"), h)
+        return
+
+    def update_active_gif(self):
+        prev = self.active_gif_index
+        if glfw.get_key(self.window, glfw.KEY_SPACE) == glfw.PRESS: 
+            self.frame_index = 0
+            self.active_gif_index = (self.active_gif_index+1)%len(self.all_gif_textures)
+        active_texture, w, h = self.all_gif_textures[self.active_gif_index][self.frame_index]
+        if prev != self.active_gif_index:
+            self.set_tex_dimensions(w, h)
         self.update_frame_index()
-        activeTexture = self.all_gif_textures[self.active_gif][self.frame_index]
-        gl.glBindTexture(gl.GL_TEXTURE_2D, activeTexture)
-        # Draw the gif to screen
+        gl.glBindTexture(gl.GL_TEXTURE_2D, active_texture)
+
+    def draw_active_gif(self):
         gl.glDrawElements(gl.GL_TRIANGLES, 6, gl.GL_UNSIGNED_INT, None)
 
+    def background(self):
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+
+    def should_run(self):
+        return not glfw.window_should_close(self.window) and glfw.get_key(self.window, glfw.KEY_ESCAPE) != glfw.PRESS
+    
+    def render(self):
+        self.background()
+        self.update_active_gif()
+        self.draw_active_gif()
+    
+    def update_window(self):
+        glfw.swap_buffers(self.window)
+        glfw.poll_events()
 
     def run(self):
-        while not glfw.window_should_close(self.window) and glfw.get_key(self.window, glfw.KEY_ESCAPE) != glfw.PRESS:
+        while self.should_run():
+            # print(self.fps())
             self.render()
-            self.fps()
-            if glfw.get_key(self.window, glfw.KEY_0) == glfw.PRESS: 
-                self.active_gif = 0
-                self.frame_index = 0
-            if glfw.get_key(self.window, glfw.KEY_1) == glfw.PRESS: 
-                self.active_gif = 1
-                self.frame_index = 1
-            print(self.active_gif)
-            glfw.swap_buffers(self.window)
-            glfw.poll_events()
+            self.update_window()
         self.terminate()
 
 def run_gif_player():
