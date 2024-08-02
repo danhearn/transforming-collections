@@ -4,7 +4,8 @@ import data_processor as dp
 import gif_player as gp
 from gif_player import run_gif_player
 
-import _thread as thread
+import threading
+import queue
 
 NUMBER_OF_VECTORS = 4
 
@@ -13,9 +14,10 @@ NUMBER_OF_VECTORS = 4
 class MainProgram: 
     def __init__(self, CSV_path, num_vectors): 
         self.data_processor = dp.DataProcessor(CSV_path, num_vectors)
-        # self.gif_player = gp.GifPlayer("./data/gifs/")
-        thread.start_new_thread(run_gif_player, ())
-
+        self.queue = queue.Queue()
+        self.gif_player = gp.GifPlayer("./data/gifs", self.queue)
+        self.gif_player_thread = threading.Thread(target=self.gif_player.run)
+        self.gif_player_thread.start()
     
     def run(self):
         while True:
@@ -26,6 +28,7 @@ class MainProgram:
             for i in range(64):
                 if row['Gifs'] == f"gif-{i}":
                     print(f"Found gif-{i}")
+                    self.queue.put(f"gif-{i}")
 
             sleep(0.5) # you can change this, but in the actual running of the system there will be around 5 - 10 seconds of delay whilst the midi file is played
 
