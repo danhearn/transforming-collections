@@ -1,5 +1,7 @@
-import OpenGL.GL as gl
 import sys, os, gc
+import OpenGL.GL as gl
+from imgui.integrations.glfw import GlfwRenderer
+import imgui
 import glfw
 from PIL import Image, ImageSequence
 # from PIL.Image import Transpose
@@ -14,24 +16,28 @@ class GifPlayer:
         if not glfw.init():
             sys.exit(1)
         try:
+            # Set the OpenGL version (should be OSX compatible)
             glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
             glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
-            glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, True)
             glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+
+            glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, True)
             
+            # Create the window
             title = "~GIF+PLAYER*"
-            primary_monitor = glfw.get_primary_monitor()
+            self.primary_monitor = glfw.get_primary_monitor()
             window_width = 400
             window_height= 400
             self.window = glfw.create_window(window_width, window_height, title, None, None)
             if not self.window:
                 glfw.terminate()
-                sys.exit(2)
+                sys.exit(1)
             glfw.make_context_current(self.window)
             gl.glViewport(0, 0, window_width, window_height)
             gl.glClearColor(0.0, 0.0, 0.0, 1.0)
             
         except Exception as e:
+            print("OPEN GL INITIALIZATION FAILED")
             glfw.terminate()
             raise e
         
