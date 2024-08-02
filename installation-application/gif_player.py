@@ -1,12 +1,14 @@
 import sys, os, gc, ctypes, time
-import OpenGL.GL as gl
-from imgui.integrations.glfw import GlfwRenderer
-import imgui
-import glfw
-from PIL import Image, ImageSequence
-# from PIL.Image import Transpose
 import numpy as np
 import _thread as thread
+
+import OpenGL.GL as gl
+import glfw
+import imgui
+from imgui.integrations.glfw import GlfwRenderer
+
+from PIL import Image, ImageSequence
+# from PIL.Image import Transpose
 
 class GifPlayer:
     def __init__(self, gifs_path):
