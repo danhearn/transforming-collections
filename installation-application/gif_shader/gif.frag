@@ -7,8 +7,8 @@ uniform float tex_w;
 uniform float tex_h;
 
 void main(){
-    float screen_w = 1920;
-    float screen_h = 1080;
+    float screen_w = 400;
+    float screen_h = 400;
 
     float scaleX = 2.;
     float scaleY = 1.0;

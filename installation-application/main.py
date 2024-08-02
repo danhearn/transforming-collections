@@ -2,6 +2,9 @@ from time import sleep
 
 import data_processor as dp
 import gif_player as gp
+from gif_player import run_gif_player
+
+import _thread as thread
 
 NUMBER_OF_VECTORS = 4
 
@@ -10,7 +13,9 @@ NUMBER_OF_VECTORS = 4
 class MainProgram: 
     def __init__(self, CSV_path, num_vectors): 
         self.data_processor = dp.DataProcessor(CSV_path, num_vectors)
-        self.gif_player = gp.GifPlayer("./data/gifs/")
+        # self.gif_player = gp.GifPlayer("./data/gifs/")
+        thread.start_new_thread(run_gif_player, ())
+
     
     def run(self):
         while True:

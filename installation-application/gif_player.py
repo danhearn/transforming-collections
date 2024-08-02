@@ -21,9 +21,9 @@ class GifPlayer:
             
             title = "~GIF+PLAYER*"
             primary_monitor = glfw.get_primary_monitor()
-            window_width = 1920
-            window_height= 1080
-            self.window = glfw.create_window(window_width, window_height, title, primary_monitor, None)
+            window_width = 400
+            window_height= 400
+            self.window = glfw.create_window(window_width, window_height, title, None, None)
             if not self.window:
                 glfw.terminate()
                 sys.exit(2)
