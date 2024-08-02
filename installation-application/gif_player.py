@@ -8,7 +8,7 @@ from PIL import Image, ImageSequence
 import numpy as np
 import ctypes
 import _thread as thread
-# import time
+import time
 
 class GifPlayer:
     def __init__(self, gifs_path):
