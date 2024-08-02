@@ -1,4 +1,4 @@
-import sys, os, gc, time
+import sys, os, gc, ctypes, time
 import OpenGL.GL as gl
 from imgui.integrations.glfw import GlfwRenderer
 import imgui
@@ -6,7 +6,6 @@ import glfw
 from PIL import Image, ImageSequence
 # from PIL.Image import Transpose
 import numpy as np
-import ctypes
 import _thread as thread
 
 class GifPlayer:
