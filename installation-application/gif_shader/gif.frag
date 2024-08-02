@@ -17,5 +17,5 @@ void main(){
 
     adjustedUV += vec2((1.0 - scaleX) / 2.0, (1.0 - scaleY) / 2.0);
 
-    fragColor = texture(gifTexture, adjustedUV);
+    fragColor = texture(gifTexture, fragUV);
 }
