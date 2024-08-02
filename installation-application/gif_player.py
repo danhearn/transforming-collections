@@ -12,7 +12,108 @@ from PIL import Image, ImageSequence
 
 class GifPlayer:
     def __init__(self, gifs_path):
-        # init the window and OpenGL context
+
+        # The Gif Player contains a basic OpenGL renderer and GLFW context which opens in a new window.
+        # The init method sets this renderer up and loads gifs from the directory specified in the
+        # constructor.
+
+        # The Gif's are stored in a 2D list where each gif is a list of frames. Stored like this:
+        #   [
+        #       [gif1_frame1, gif1_frame2, gif1_frame3, ...],
+        #       [gif2_frame1, gif2_frame2, gif2_frame3, ...],
+        #       [etc...]   
+        #   ] 
+        # Each frame also contains the width and height of the gif so the renderer can adjust the texture.
+        # Later, this could be changed if all of the gifs have a uniform size.
+
+        self.initialize_renderer()
+        self.load_bind_all_data(gifs_path)
+
+        # Create some variables to play the gifs in time. 
+        # With the final gifs, the FPS may be embedded into the GIF files and may not be 24 fps
+        self.current_time = 0
+        self.last_update_time = 0
+        self.frame_index = 0
+        self.frame_duration = 1.0 / 24  # 24 fps
+        self.active_gif_index = 0
+
+    #################################################################################
+    ############################# MAIN RENDERING LOGIC ##############################
+    #################################################################################
+
+    def run(self):
+        while self.should_run():
+            self.update_active_gif()
+            # TODO: Update render to only happen when frame has updated to save resources.
+            self.render()
+        self.terminate()
+
+    def render(self):
+        self.background()
+        self.draw_active_gif()
+        self.update_window()
+
+    def update_frame_index(self):
+        # Update the frame index to the next frame if the time has passed the frame duration.
+
+        self.current_time = glfw.get_time()
+        if self.current_time - self.last_update_time >= self.frame_duration:
+            self.frame_index = (self.frame_index + 1) % len(self.all_gif_textures[self.active_gif_index])
+            self.last_update_time = self.current_time
+
+    def update_active_gif(self):
+        # Update the active gif and frame index if the space key is pressed.
+
+        prev = self.active_gif_index
+        # TODO: Update this to work with the data files from the main program, instead 
+        # of user input.
+        if glfw.get_key(self.window, glfw.KEY_SPACE) == glfw.PRESS: 
+            self.frame_index = 0
+            self.active_gif_index = (self.active_gif_index+1)%len(self.all_gif_textures)
+
+        active_texture, w, h = self.all_gif_textures[self.active_gif_index][self.frame_index]
+        if prev != self.active_gif_index:
+            self.set_tex_dimensions(w, h)
+
+        self.update_frame_index()
+        gl.glBindTexture(gl.GL_TEXTURE_2D, active_texture)
+
+    def set_tex_dimensions(self, w, h):
+        # Send the gif's dimensions to the shader so it can adjust the texture coordinates
+        # In case the final gifs have varying dimensions.
+
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_w"), w)
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_h"), h)
+        return
+
+    def should_run(self):
+        return not glfw.window_should_close(self.window) and glfw.get_key(self.window, glfw.KEY_ESCAPE) != glfw.PRESS
+    
+    def draw_active_gif(self):
+        gl.glDrawElements(gl.GL_TRIANGLES, 6, gl.GL_UNSIGNED_INT, None)
+
+    def background(self):
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+    
+    def update_window(self):
+        glfw.swap_buffers(self.window)
+        glfw.poll_events()
+    
+    def fps(self):
+        # Calculate the frames per second.
+
+        prev_time = self.current_time
+        self.current_time = glfw.get_time()
+        delta_time = self.current_time - prev_time
+        fps = 1.0 / delta_time if delta_time > 0 else 0
+        return fps
+    
+
+    #################################################################################
+    ###################### OPENGL, SETUP AND LOADING FUNCTIONS ######################
+    #################################################################################
+
+    def initialize_renderer(self):
         if not glfw.init():
             sys.exit(1)
         try:
@@ -32,6 +133,8 @@ class GifPlayer:
             if not self.window:
                 glfw.terminate()
                 sys.exit(1)
+
+            # Attach the OpenGL context to the window
             glfw.make_context_current(self.window)
             gl.glViewport(0, 0, window_width, window_height)
             gl.glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -40,24 +143,30 @@ class GifPlayer:
             print("OPEN GL INITIALIZATION FAILED")
             glfw.terminate()
             raise e
-        
+    
+    def load_bind_all_data(self, gifs_path):
+        # Loads all of the data needed to render the gifs from now on. The gifs need to be converted into
+        # a format which can be rendered in the window, AKA textures.
         self.all_gif_textures = []
         self.gifs_data = self.load_gifs(gifs_path)
         self.load_all_textures()
         self.create_vertex_array_object()
         self.create_vertex_buffer()
         self.load_shaders()
-        self.current_time = 0
-        self.last_update_time = 0
-        self.frame_index = 0
-        self.frame_duration = 1.0 / 24  # 24 fps
-        self.active_gif_index = 0
 
     def create_vertex_array_object(self):
+        # The vertex buffer object has to be attached to a VAO to be rendered.
         self.vertex_array_id = gl.glGenVertexArrays(1)
         gl.glBindVertexArray(self.vertex_array_id)
 
     def create_vertex_buffer(self):
+        # Gif Player just needs a single fullscreen quad to render the gif textures. This function 
+        # gives the renderer the necesary vertex data to render the quad.
+
+        # Since OpenGL works with triangles, we define 4 points and 6 indices to create a quad.
+        # The vertex data also includes the UV coordinates for the texture, at attribute index 1.
+        position_attr_id = 0
+        uv_attr_id = 1
         vertex_data = np.array([
             # Positions      # UVs
             1.0, 1.0, 0.0, 1.0, 1.0,    # top right
@@ -65,41 +174,41 @@ class GifPlayer:
             -1.0, -1.0, 0.0, 0.0, 0.0,  # bottom left
             -1.0, 1.0, 0.0, 0.0, 1.0    # top left
         ], dtype=np.float32)
-
         indices = np.array([
             0, 1, 3,    # first triangle
             1, 2, 3     # secpod triangle
         ], dtype=np.uint32)
 
-        position_attr_id = 0
-        uv_attr_id = 1
-
+        # Create and bind the vertex buffer
         self.vertex_buffer = gl.glGenBuffers(1)
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vertex_buffer)
         gl.glBufferData(gl.GL_ARRAY_BUFFER, vertex_data.nbytes, vertex_data, gl.GL_STATIC_DRAW)
-
+        # Create and bind the indices buffer
         self.ebo = gl.glGenBuffers(1)
         gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, self.ebo)
         gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, gl.GL_STATIC_DRAW)
 
-        # Position attribute
+        # Assign the position data to the vertex buffer
         gl.glVertexAttribPointer(position_attr_id, 3, gl.GL_FLOAT, False, 5*vertex_data.itemsize, None)
         gl.glEnableVertexAttribArray(position_attr_id)
-
-        # UV attribute
+        # Assign the UV data to the vertex buffer
         gl.glVertexAttribPointer(uv_attr_id, 2, gl.GL_FLOAT, False, 5*vertex_data.itemsize, ctypes.c_void_p(3*vertex_data.itemsize))
         gl.glEnableVertexAttribArray(uv_attr_id)
 
     def load_shader_source(self, file_path):
+        # Loads shader source code from a file and returns the data as a string.
         with open(file_path,'r') as file:
             return file.read()
         
     def load_shaders(self):
+        # This function loads, compiles and links the vertex and fragment shaders for the gif player.
+
         shaders = {
             gl.GL_VERTEX_SHADER: self.load_shader_source("./gif_shader/gif.vert"),
             gl.GL_FRAGMENT_SHADER: self.load_shader_source("./gif_shader/gif.frag")
         }
 
+        # Creates a shader program.
         self.program_id = gl.glCreateProgram()
         
         self.shader_ids = []
@@ -114,25 +223,27 @@ class GifPlayer:
             if info_log_len:
                 logmsg = gl.glGetShaderInfoLog(shader_id)
                 print("Shader compile error:" + logmsg.decode('utf-8'))
-                sys.exit(10)
-            
+                sys.exit(1)
+           
+            # If compilation succeeded, attach the shader to the program
             gl.glAttachShader(self.program_id, shader_id)
             self.shader_ids.append(shader_id)
 
+        # Link the program
         gl.glLinkProgram(self.program_id)
 
-        # check if linking was successful
-        result = gl.glGetProgramiv(self.program_id, gl.GL_LINK_STATUS)
+        # check if linking succeeded, if so use the program
         info_log_len = gl.glGetProgramiv(self.program_id, gl.GL_INFO_LOG_LENGTH)
         if info_log_len:
             logmsg = gl.glGetProgramInfoLog(self.program_id)
             print("Shader linking error:" + logmsg.decode('utf-8'))
-            sys.exit(11)
+            sys.exit(1)
         
         gl.glUseProgram(self.program_id)
             
-
     def load_gifs(self, gifs_path):
+        # Using PILLOW to load the gifs and convert them to byte format, to be used by OpenGL.
+
         gifs = []
         for file_name in os.listdir(gifs_path):
             if file_name.endswith('.gif') or file_name.endswith('.GIF'):
@@ -151,7 +262,7 @@ class GifPlayer:
     def make_texture_from_frame(self, frame_data):
         image_bytes, w, h = frame_data
 
-        # Generate a texture and bind a texture
+        # Generate a texture and bind it (this makes it active when we set parameters below)
         tex = gl.glGenTextures(1)
         gl.glBindTexture(gl.GL_TEXTURE_2D, tex)
 
@@ -168,16 +279,25 @@ class GifPlayer:
         return tex, w, h
 
     def load_all_textures(self):
+        # Now that gifs have been converted to byte format we create textures from them
+        # which can be displayed in the window.
+        
+        # The frame data is a tuple of (image_bytes, width, height) in case the gifs
+        # are not all the same size and we need to adjust the texture coordinates.
+        
         for gif in self.gifs_data:
             all_textures_from_this_gif = []
             for frame_data in gif:
                 single_frame_texture = self.make_texture_from_frame(frame_data)
                 all_textures_from_this_gif.append(single_frame_texture)
             self.all_gif_textures.append(all_textures_from_this_gif)
+        
+        # We can delete the original gif data from memory.
         del self.gifs_data
         gc.collect
     
     def terminate(self):
+        # In case the program closes, it's good practice to clean up the resources.
         gl.glDisableVertexAttribArray(0)
         gl.glDeleteBuffers(1, [self.vertex_buffer])
         gl.glDeleteBuffers(1, [self.ebo])
@@ -189,59 +309,6 @@ class GifPlayer:
         gl.glDeleteProgram(self.program_id)
         glfw.terminate()
 
-    def fps(self):
-        prev_time = self.current_time
-        self.current_time = glfw.get_time()
-        delta_time = self.current_time - prev_time
-        fps = 1.0 / delta_time if delta_time > 0 else 0
-        return fps
-
-    def update_frame_index(self):
-        self.current_time = glfw.get_time()
-        if self.current_time - self.last_update_time >= self.frame_duration:
-            self.frame_index = (self.frame_index + 1) % len(self.all_gif_textures[self.active_gif_index])
-            self.last_update_time = self.current_time
-
-    def set_tex_dimensions(self, w, h):
-        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_w"), w)
-        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_h"), h)
-        return
-
-    def update_active_gif(self):
-        prev = self.active_gif_index
-        if glfw.get_key(self.window, glfw.KEY_SPACE) == glfw.PRESS: 
-            self.frame_index = 0
-            self.active_gif_index = (self.active_gif_index+1)%len(self.all_gif_textures)
-        active_texture, w, h = self.all_gif_textures[self.active_gif_index][self.frame_index]
-        if prev != self.active_gif_index:
-            self.set_tex_dimensions(w, h)
-        self.update_frame_index()
-        gl.glBindTexture(gl.GL_TEXTURE_2D, active_texture)
-
-    def draw_active_gif(self):
-        gl.glDrawElements(gl.GL_TRIANGLES, 6, gl.GL_UNSIGNED_INT, None)
-
-    def background(self):
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-
-    def should_run(self):
-        return not glfw.window_should_close(self.window) and glfw.get_key(self.window, glfw.KEY_ESCAPE) != glfw.PRESS
-    
-    def render(self):
-        self.background()
-        self.update_active_gif()
-        self.draw_active_gif()
-    
-    def update_window(self):
-        glfw.swap_buffers(self.window)
-        glfw.poll_events()
-
-    def run(self):
-        while self.should_run():
-            # print(self.fps())
-            self.render()
-            self.update_window()
-        self.terminate()
 
 def run_gif_player():
     player = GifPlayer("./data/gifs")
