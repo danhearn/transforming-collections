@@ -1,4 +1,4 @@
-import sys, os, gc
+import sys, os, gc, time
 import OpenGL.GL as gl
 from imgui.integrations.glfw import GlfwRenderer
 import imgui
@@ -8,7 +8,6 @@ from PIL import Image, ImageSequence
 import numpy as np
 import ctypes
 import _thread as thread
-import time
 
 class GifPlayer:
     def __init__(self, gifs_path):
