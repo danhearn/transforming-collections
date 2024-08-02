@@ -1,6 +1,7 @@
 from time import sleep
 
 import data_processor as dp
+import gif_player as gp
 
 NUMBER_OF_VECTORS = 4
 
@@ -9,6 +10,7 @@ NUMBER_OF_VECTORS = 4
 class MainProgram: 
     def __init__(self, CSV_path, num_vectors): 
         self.data_processor = dp.DataProcessor(CSV_path, num_vectors)
+        self.gif_player = gp.GifPlayer("./data/gifs/")
     
     def run(self):
         while True:
@@ -24,5 +26,5 @@ class MainProgram:
 
 if __name__ == "__main__":
     # Normal data set main_program = MainProgram('/Users/erika/Documents/GitHub/transforming-collections/prototype-scripts/app/data/tanc-etan_system-dataset.csv', NUMBER_OF_VECTORS)
-    main_program = MainProgram('/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/system-dataset-gif-test.csv', NUMBER_OF_VECTORS)
+    main_program = MainProgram('./data/system-dataset-gif-test.csv', NUMBER_OF_VECTORS)
     main_program.run()
