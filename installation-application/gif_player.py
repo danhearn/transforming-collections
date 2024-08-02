@@ -2,11 +2,11 @@ import OpenGL.GL as gl
 import sys, os, gc
 import glfw
 from PIL import Image, ImageSequence
-from PIL.Image import Transpose
+# from PIL.Image import Transpose
 import numpy as np
 import ctypes
 import _thread as thread
-import time
+# import time
 
 class GifPlayer:
     def __init__(self, gifs_path):
