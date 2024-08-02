@@ -1,17 +1,19 @@
 import sys, os, gc, ctypes, time
 import numpy as np
-import _thread as thread
 
 import OpenGL.GL as gl
 import glfw
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
+import queue
+from queue import Empty
+
 from PIL import Image, ImageSequence
 # from PIL.Image import Transpose
 
 class GifPlayer:
-    def __init__(self, gifs_path):
+    def __init__(self, gifs_path, queue):
 
         # The Gif Player contains a basic OpenGL renderer and GLFW context which opens in a new window.
         # The init method sets this renderer up and loads gifs from the directory specified in the
@@ -25,16 +27,16 @@ class GifPlayer:
         #   ] 
         # Each frame also contains the width and height of the gif so the renderer can adjust the texture.
         # Later, this could be changed if all of the gifs have a uniform size.
-
-        self.initialize_renderer()
-        self.load_bind_all_data(gifs_path)
+        
+        self.gifs_path = gifs_path
+        self.queue = queue
 
         # Create some variables to play the gifs in time. 
-        # With the final gifs, the FPS may be embedded into the GIF files and may not be 24 fps
+        # With the final gifs, the FPS may be embedded into the GIF files and may not be 12 fps
         self.current_time = 0
         self.last_update_time = 0
         self.frame_index = 0
-        self.frame_duration = 1.0 / 24  # 24 fps
+        self.frame_duration = 1.0 / 12  # 12 fps
         self.active_gif_index = 0
 
     #################################################################################
@@ -42,11 +44,16 @@ class GifPlayer:
     #################################################################################
 
     def run(self):
-        while self.should_run():
-            self.update_active_gif()
-            # TODO: Update render to only happen when frame has updated to save resources.
-            self.render()
-        self.terminate()
+        self.initialize_renderer()
+        self.load_bind_all_data(self.gifs_path)
+        try:
+            while self.should_run():
+                self.update_active_gif()
+                # TODO: Update render to only happen when frame has updated to save resources.
+                self.render()
+            self.terminate()
+        except Exception as e:
+            print(f"An error occurred in GifPlayer's run method: {e}")
 
     def render(self):
         self.background()
@@ -65,8 +72,22 @@ class GifPlayer:
         # Update the active gif and frame index if the space key is pressed.
 
         prev = self.active_gif_index
-        # TODO: Update this to work with the data files from the main program, instead 
-        # of user input.
+        message = None
+        try:
+            message = self.queue.get_nowait()
+            print(message)
+        except Empty:
+            pass
+        except Exception as e:
+            raise e
+        if message is not None:
+            print("found message: ", message)
+            message = message.lstrip("gif-")
+            message = int(message) - 1
+            self.frame_index = 0
+            self.active_gif_index = message
+
+        ## DEBUG USER INPUT TO CHANGE GIFS
         if glfw.get_key(self.window, glfw.KEY_SPACE) == glfw.PRESS: 
             self.frame_index = 0
             self.active_gif_index = (self.active_gif_index+1)%len(self.all_gif_textures)
@@ -311,14 +332,8 @@ class GifPlayer:
 
 
 def run_gif_player():
-    player = GifPlayer("./data/gifs")
+    player = GifPlayer("./data/gifs", 0)
     player.run()
 
 if __name__ == '__main__':
-    try:
-        thread.start_new_thread(run_gif_player, ())
-        # Keep the main thread alive with a sleep loop
-        while True:
-            time.sleep(1)
-    except Exception as e:
-        print(f"An error occurred in the main thread: {e}")
+    run_gif_player()
