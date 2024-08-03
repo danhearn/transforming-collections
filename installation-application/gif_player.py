@@ -281,9 +281,11 @@ class GifPlayer:
         # Using PILLOW to load the gifs and convert them to byte format, to be used by OpenGL.
 
         gifs = []
-        for file_name in os.listdir(self.gifs_path):
+        file_names = sorted(os.listdir(self.gifs_path), key=lambda name: int(name.lstrip("gif-").rstrip(".gif")))
+        for file_name in file_names:
             if file_name.endswith('.gif') or file_name.endswith('.GIF'):
                 gif_path = os.path.join(self.gifs_path, file_name)
+                print(gif_path)
                 with Image.open(gif_path) as im:
                     frames = []
                     for frame in ImageSequence.Iterator(im):
