@@ -69,7 +69,6 @@ class GifPlayer:
             self.last_update_time = self.current_time
 
     def update_active_gif(self):
-        # Update the active gif and frame index if the space key is pressed.
 
         prev = self.active_gif_index
         message = None
@@ -115,8 +114,16 @@ class GifPlayer:
 
     def background(self):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+
+    def framebuffer_size_callback(self, window, width, height):
+        gl.glViewport(0, 0, width, height)
+        self.window_width = width
+        self.window_height = height
     
     def update_window(self):
+        glfw.set_framebuffer_size_callback(self.window, self.framebuffer_size_callback)
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_w"), self.window_width)
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_h"), self.window_height)
         glfw.swap_buffers(self.window)
         glfw.poll_events()
     
@@ -148,16 +155,16 @@ class GifPlayer:
             # Create the window
             title = "~GIF+PLAYER*"
             self.primary_monitor = glfw.get_primary_monitor()
-            window_width = 400
-            window_height= 400
-            self.window = glfw.create_window(window_width, window_height, title, None, None)
+            self.window_width = 640
+            self.window_height = 480
+            self.window = glfw.create_window(self.window_width, self.window_height, title, None, None)
             if not self.window:
                 glfw.terminate()
                 sys.exit(1)
 
             # Attach the OpenGL context to the window
             glfw.make_context_current(self.window)
-            gl.glViewport(0, 0, window_width, window_height)
+            gl.glViewport(0, 0, self.window_width, self.window_height)
             gl.glClearColor(0.0, 0.0, 0.0, 1.0)
             
         except Exception as e:
