@@ -13,7 +13,7 @@ from PIL import Image, ImageSequence
 # from PIL.Image import Transpose
 
 class GifPlayer:
-    def __init__(self, gifs_path, queue):
+    def __init__(self, gifs_path="./data/gifs", queue=None):
 
         # The Gif Player contains a basic OpenGL renderer and GLFW context which opens in a new window.
         # The init method sets this renderer up and loads gifs from the directory specified in the
@@ -39,12 +39,9 @@ class GifPlayer:
         self.frame_duration = 1.0 / 12  # 12 fps
         self.active_gif_index = 0
 
-    #################################################################################
     ############################# MAIN RENDERING LOGIC ##############################
-    #################################################################################
-
     def run(self):
-        self.initialize_renderer()
+        self.window, self.window_width, self.window_height, self.primary_monitor = self.impl_glfw_init()
         self.load_bind_all_data(self.gifs_path)
         try:
             while self.should_run():
@@ -72,19 +69,21 @@ class GifPlayer:
 
         prev = self.active_gif_index
         message = None
-        try:
-            message = self.queue.get_nowait()
-            print(message)
-        except Empty:
-            pass
-        except Exception as e:
-            raise e
-        if message is not None:
-            print("found message: ", message)
-            message = message.lstrip("gif-")
-            message = int(message) - 1
-            self.frame_index = 0
-            self.active_gif_index = message
+
+        if self.queue is not None:
+            try:
+                message = self.queue.get_nowait()
+                print(message)
+            except Empty:
+                pass
+            except Exception as e:
+                raise e
+            if message is not None:
+                print("found message: ", message)
+                message = message.lstrip("gif-")
+                message = int(message) - 1
+                self.frame_index = 0
+                self.active_gif_index = message
 
         ## DEBUG USER INPUT TO CHANGE GIFS
         if glfw.get_key(self.window, glfw.KEY_SPACE) == glfw.PRESS: 
@@ -137,11 +136,13 @@ class GifPlayer:
         return fps
     
 
+
     #################################################################################
     ###################### OPENGL, SETUP AND LOADING FUNCTIONS ######################
     #################################################################################
 
-    def initialize_renderer(self):
+
+    def impl_glfw_init(self):
         if not glfw.init():
             sys.exit(1)
         try:
@@ -154,23 +155,25 @@ class GifPlayer:
             
             # Create the window
             title = "~GIF+PLAYER*"
-            self.primary_monitor = glfw.get_primary_monitor()
-            self.window_width = 640
-            self.window_height = 480
-            self.window = glfw.create_window(self.window_width, self.window_height, title, None, None)
-            if not self.window:
+            primary_monitor = glfw.get_primary_monitor()
+            window_width = 640
+            window_height = 480
+            window = glfw.create_window(window_width, window_height, title, None, None)
+            if not window:
                 glfw.terminate()
                 sys.exit(1)
 
             # Attach the OpenGL context to the window
-            glfw.make_context_current(self.window)
-            gl.glViewport(0, 0, self.window_width, self.window_height)
+            glfw.make_context_current(window)
+            gl.glViewport(0, 0, window_width, window_height)
             gl.glClearColor(0.0, 0.0, 0.0, 1.0)
-            
         except Exception as e:
-            print("OPEN GL INITIALIZATION FAILED")
+            print("GLFW INITIALIZATION FAILED")
             glfw.terminate()
             raise e
+        finally:
+            return (window, window_width, window_height, primary_monitor)
+        
     
     def load_bind_all_data(self, gifs_path):
         # Loads all of the data needed to render the gifs from now on. The gifs need to be converted into
@@ -337,10 +340,6 @@ class GifPlayer:
         gl.glDeleteProgram(self.program_id)
         glfw.terminate()
 
-
-def run_gif_player():
-    player = GifPlayer("./data/gifs", 0)
-    player.run()
-
 if __name__ == '__main__':
-    run_gif_player()
+    player = GifPlayer(gifs_path="./data/gifs", queue=None)
+    player.run()

@@ -2,7 +2,6 @@ from time import sleep
 
 import data_processor as dp
 import gif_player as gp
-from gif_player import run_gif_player
 
 import threading
 import queue
