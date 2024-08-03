@@ -38,11 +38,14 @@ class GifPlayer:
         self.active_gif = None
 
     def run(self):
+        imgui.create_context()
         self.window, self.window_width, self.window_height, self.primary_monitor = self.impl_glfw_init()
+        self.impl = GlfwRenderer(self.window)
         self.load_bind_all_data()
         # self.active_gif = self.gif_textures[self.active_gif_index]
         try:
             while self.should_run():
+                self.update_window()
                 self.update_active_gif()
                 # TODO: Update render to only happen when frame has updated to save resources.
                 self.render()
@@ -55,7 +58,14 @@ class GifPlayer:
         self.background()
         if self.active_gif is not None:
             self.draw_active_gif()
-        self.update_window()
+        imgui.new_frame()
+        imgui.begin("Custom window", True)
+        imgui.text(f"FPS: {self.fps()}")
+        imgui.end()
+        imgui.render()
+
+        self.impl.render(imgui.get_draw_data())
+        
 
     def update_frame_index(self):
         # Update the frame index to the next frame if the time has passed the frame duration.
@@ -127,6 +137,7 @@ class GifPlayer:
         gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_h"), self.window_height)
         glfw.swap_buffers(self.window)
         glfw.poll_events()
+        self.impl.process_inputs()
     
     def fps(self):
         # Calculate the frames per second.

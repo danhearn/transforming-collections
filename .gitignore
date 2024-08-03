@@ -3,3 +3,4 @@ myVenv/
 __pycache__/
 gif_rename.py
 *.pyc
+imgui.ini
