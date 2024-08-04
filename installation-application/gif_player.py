@@ -14,9 +14,14 @@ from PIL import Image, ImageSequence
 class GifPlayer:
     def __init__(self, gifs_path="./data/gifs", queue=None):
 
-        # The Gif Player contains a basic OpenGL renderer and GLFW context which opens in a new window.
-        # The init method sets this renderer up and loads gifs from the directory specified in the
-        # constructor.
+        # The Gif Player contains a basic OpenGL renderer and GLFW window. There is also an ImGui GUI
+        # for basic debugging and usabilitiy.
+        #
+        # The main initiliazation happens in the 'run()' method because the renderer is designed to be
+        # used on a separate thread than the main program. It's not possible to initialize the OpenGL
+        # context on one thread and render on another.
+        #
+        #This method just defines some private variables for loading and displaying the GIFs.
 
         # The Gif's are stored in a 2D list where each gif is a list of frames. Stored like this:
         #   [
@@ -25,131 +30,182 @@ class GifPlayer:
         #       [etc...]   
         #   ] 
         # Each frame also contains the width and height of the gif so the renderer can adjust the texture.
-        # Later, this could be changed if all of the gifs have a uniform size.
-        
+        # They also contain the duration of the frame in milliseconds.
+        #
+        # These are private variables for internal use
+
         self.gifs_path = gifs_path
         self.queue = queue
 
-        # Create some variables to play the gifs in time. 
+        self.show_settings = False
+
+        self.window_width = None
+        self.window_height = None
+        self.monitors = None
+        self.monitor_choice = 0
+        self.is_fullscreen = False
+
+        self.gif_textures = None
+        self.active_gif = None
+        self.vao = None
+        self.vbo = None
+        self.ebo = None
+        self.program_id = None 
+        self.shader_ids = None
+
         self.current_time = 0
         self.last_update_time = 0
         self.frame_index = 0
+        self.prev_frame = -1
         self.active_gif_index = 0
-        self.active_gif = None
 
     def run(self):
+        # Setup the OpenGL and ImGUI context / renderers
         imgui.create_context()
-        self.window, self.window_width, self.window_height, self.primary_monitor = self.impl_glfw_init()
-        self.impl = GlfwRenderer(self.window)
+        self.window, self.window_width, self.window_height, self.monitors, self.impl_imgui = self.impl_glfw_init()
+        # Define the remaining OpenGL and texture data requires
         self.load_bind_all_data()
-        # self.active_gif = self.gif_textures[self.active_gif_index]
+        # MAIN LOOP
         try:
             while self.should_run():
                 self.update_window()
                 self.update_active_gif()
-                # TODO: Update render to only happen when frame has updated to save resources.
+                self.update_imgui()
                 self.render()
         except Exception as e:
             print(f"An error occurred in GifPlayer's run method: {e}")
         finally:
             self.terminate()
+            sys.exit(1)
 
     def render(self):
         self.background()
-        if self.active_gif is not None:
+        if self.active_gif is not None and self.frame_index != self.prev_frame:
             self.draw_active_gif()
-        imgui.new_frame()
-        imgui.begin("Custom window", True)
-        imgui.text(f"FPS: {self.fps()}")
-        imgui.end()
         imgui.render()
-
-        self.impl.render(imgui.get_draw_data())
+        self.impl_imgui.render(imgui.get_draw_data())
         
+    def update_imgui(self):
+        imgui.new_frame()
+        if self.show_settings:
+            _, self.show_settings = imgui.begin("Settings", True)
+            imgui.text(f"{len(self.monitors)} possible monitors found:")
+
+            if imgui.button("Toggle Fullscreen"):
+                self.toggle_fullscreen()
+            imgui.text(f"FPS: {self.fps()}")
+            imgui.end()
+
+    def update_window(self):
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_w"), self.window_width)
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_h"), self.window_height)
+        glfw.swap_buffers(self.window)
+        glfw.poll_events()
+        self.impl_imgui.process_inputs()
 
     def update_frame_index(self):
         # Update the frame index to the next frame if the time has passed the frame duration.
-
         self.current_time = glfw.get_time()
         if self.current_time - self.last_update_time >= self.active_gif[self.frame_index][3] / 1000:
+            self.prev_frame = self.frame_index
             self.frame_index = (self.frame_index + 1) % len(self.active_gif)
             self.last_update_time = self.current_time
 
     def update_active_gif(self):
-
         prev = self.active_gif
         message = None
 
         if self.queue is not None:
             try:
                 message = self.queue.get_nowait()
-                print(message)
+                print(f"Received instruction to play: {message}")
             except Empty:
                 pass
             except Exception as e:
                 raise e
             if message is not None:
-                print("found message: ", message)
                 message = message.lstrip("gif-")
-                index = int(message) - 1
-                self.frame_index = 0
-                self.active_gif_index = index
+                self.restart_gif()
+                self.active_gif_index = int(message) - 1
                 self.active_gif = self.gif_textures[self.active_gif_index]
 
-        ## DEBUG USER INPUT TO CHANGE GIFS
-        if glfw.get_key(self.window, glfw.KEY_SPACE) == glfw.PRESS: 
-            self.frame_index = 0
+        ## TEMPORARY
+        if glfw.get_key(self.window, glfw.KEY_SPACE) == glfw.PRESS:
+            self.restart_gif()
             self.active_gif_index = (self.active_gif_index+1)%len(self.gif_textures)
             self.active_gif = self.gif_textures[self.active_gif_index]
 
         if self.active_gif is not None:
-            active_texture, w, h, dur = self.active_gif[self.frame_index]
+            active_texture, w, h, _ = self.active_gif[self.frame_index]
             if prev != self.active_gif:
                 self.set_tex_dimensions(w, h)
             self.update_frame_index()
-            gl.glBindTexture(gl.GL_TEXTURE_2D, active_texture)
+            self.apply_gif_texture(active_texture)
 
-    def set_tex_dimensions(self, w, h):
-        # Send the gif's dimensions to the shader so it can adjust the texture coordinates
-        # In case the final gifs have varying dimensions.
-
-        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_w"), w)
-        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_h"), h)
-        return
-
-    def should_run(self):
-        return not glfw.window_should_close(self.window) and glfw.get_key(self.window, glfw.KEY_ESCAPE) != glfw.PRESS
-    
-    def draw_active_gif(self):
-        gl.glDrawElements(gl.GL_TRIANGLES, 6, gl.GL_UNSIGNED_INT, None)
-
-    def background(self):
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-
-    def framebuffer_size_callback(self, window, width, height):
-        gl.glViewport(0, 0, width, height)
-        self.window_width = width
-        self.window_height = height
-    
-    def update_window(self):
-        glfw.set_framebuffer_size_callback(self.window, self.framebuffer_size_callback)
-        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_w"), self.window_width)
-        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_h"), self.window_height)
-        glfw.swap_buffers(self.window)
-        glfw.poll_events()
-        self.impl.process_inputs()
+    def restart_gif(self):
+        self.prev_frame = -1
+        self.frame_index = 0
     
     def fps(self):
         # Calculate the frames per second.
-
         prev_time = self.current_time
         self.current_time = glfw.get_time()
         delta_time = self.current_time - prev_time
         fps = 1.0 / delta_time if delta_time > 0 else 0
         return fps
+
+    def toggle_fullscreen(self):
+        # Toggle the window between fullscreen and windowed mode.
+        if not self.is_fullscreen:
+            # Get the video mode of the primary monitor
+            mode = glfw.get_video_mode(self.monitors[self.monitor_choice])
+            glfw.set_window_monitor(self.window, self.monitors[self.monitor_choice], 0, 0, mode.size.width, mode.size.height, glfw.DONT_CARE)
+            glfw.set_window_size(self.window, mode.size.width, mode.size.height)
+            self.is_fullscreen = True
+        else:
+            glfw.set_window_monitor(self.window, None, 0, 0, 640, 480, glfw.DONT_CARE)
+            print(glfw.get_window_monitor(self.window))
+            # glfw.set_window_size(self.window, self.window_width, self.window_height)
+            self.is_fullscreen = False
+
+    def set_tex_dimensions(self, w, h):
+        # Send the gif's dimensions to the shader so it can adjust the texture coordinates
+        # In case the final gifs have varying dimensions.
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_w"), w)
+        gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "tex_h"), h)
+        return
+
+    def should_run(self):
+        return not glfw.window_should_close(self.window)
     
+    def background(self, color=None):
+        if color is not None:
+            gl.glClearColor(*color, 1.0)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+    
+    def apply_gif_texture(self, texture):
+        gl.glBindTexture(gl.GL_TEXTURE_2D, texture)
+    
+    def draw_active_gif(self):
+        gl.glDrawElements(gl.GL_TRIANGLES, 6, gl.GL_UNSIGNED_INT, None)
 
+    def framebuffer_size_callback(self, window, width, height):
+        gl.glViewport(0, 0, width, height)
+        self.window_width = width
+        self.window_height = height
 
+    def key_callback(self, window, key, scancode, action, mods):
+        if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
+            self.show_settings = not self.show_settings
+        if key == glfw.KEY_F11 and action == glfw.PRESS:
+            self.toggle_fullscreen()
+        # ## DEBUG USER INPUT TO CHANGE GIFS
+        ## CURRENTLY BROKEN AND NEED TO UPDATE FUNCTION 'update_active_gif()'
+        # if key == glfw.KEY_SPACE and action == glfw.PRESS: 
+        #     self.restart_gif()
+        #     self.active_gif_index = (self.active_gif_index+1)%len(self.gif_textures)
+        #     self.active_gif = self.gif_textures[self.active_gif_index]
+        
     #################################################################################
     ###################### OPENGL, SETUP AND LOADING FUNCTIONS ######################
     #################################################################################
@@ -163,21 +219,22 @@ class GifPlayer:
             glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
             glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
             glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-
             glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, True)
-            
+
             # Create the window
             title = "~GIF+PLAYER*"
-            primary_monitor = glfw.get_primary_monitor()
+            monitors = glfw.get_monitors()
             window_width = 640
             window_height = 480
             window = glfw.create_window(window_width, window_height, title, None, None)
             if not window:
                 glfw.terminate()
                 sys.exit(1)
-
             # Attach the OpenGL context to the window
             glfw.make_context_current(window)
+            impl_imgui = GlfwRenderer(window)
+            glfw.set_framebuffer_size_callback(window, self.framebuffer_size_callback)
+            glfw.set_key_callback(window, self.key_callback)
             gl.glViewport(0, 0, window_width, window_height)
             gl.glClearColor(0.0, 0.0, 0.0, 1.0)
         except Exception as e:
@@ -185,7 +242,7 @@ class GifPlayer:
             glfw.terminate()
             raise e
         finally:
-            return (window, window_width, window_height, primary_monitor)
+            return (window, window_width, window_height, monitors, impl_imgui)
         
     
     def load_bind_all_data(self):
@@ -296,7 +353,6 @@ class GifPlayer:
         for file_name in file_names:
             if file_name.endswith('.gif') or file_name.endswith('.GIF'):
                 gif_path = os.path.join(self.gifs_path, file_name)
-                print(gif_path)
                 with Image.open(gif_path) as im:
                     frames = []
                     for frame in ImageSequence.Iterator(im):
