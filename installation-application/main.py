@@ -1,28 +1,45 @@
 from time import sleep
 
 import data_processor as dp
+import semantic_init
+import semantic_client
 
 NUMBER_OF_VECTORS = 4
-
-# please create a new module and class in the gif_player.py file and incoporate it into this program.
+CSV_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/system-dataset-gif-test.csv'
+PURE_DATA_PATH = '/Users/erika/Documents/GitHub/data-sonification/semantic_synth(with-effects).pd'
+EMBEDDINGS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/data/input/tate_wellcome_SEA_text_embeddings.npy'
+DELAY = 5
 
 class MainProgram: 
-    def __init__(self, CSV_path, num_vectors): 
-        self.data_processor = dp.DataProcessor(CSV_path, num_vectors)
-    
+    def __init__(self, CSV_path, num_vectors, pure_data_path, embeddings_path, delay): 
+        self.positive_client = semantic_client.SemanticClient("127.0.0.1", 9000)
+        self.negative_client = semantic_client.SemanticClient("127.0.0.1", 10000)
+        self.semantic_init = semantic_init.SemanticModel(pure_data_path, embeddings_path, num_vectors)
+        self.data_processor = dp.DataProcessor(CSV_path, self.semantic_init)
+        self.delay = delay
+        
     def run(self):
         while True:
             row = self.data_processor.get_random_row()
-            print(f"Processing index: {row.name}, Countries: {row['Countries']}, Keywords: {row['Keywords']}") #, Label and vectors: {[row['Label']] +  list(row['Vectors'])}
+            vectors = [float(value) for value in row['Vectors']]
+            print(f"Processing index: {row.name}, Countries: {row['Countries']}, Keywords: {row['Keywords']}  Label and vectors: {[row['Label']] +  list(row['Vectors'])}")
             
             # this is just for testing, but I've added about 64 indexes with gifs
             for i in range(64):
                 if row['Gifs'] == f"gif-{i}":
                     print(f"Found gif-{i}")
 
-            sleep(0.5) # you can change this, but in the actual running of the system there will be around 5 - 10 seconds of delay whilst the midi file is played
+            # -------------------- SEMANTIC VECTOR OSC MESSAGES ------------------------
+            if row['Label'] == 1:
+                self.positive_client.send_vectors("/positve", vectors)
+            else:
+                self.negative_client.send_vectors("/negative", vectors)
 
+            sleep(self.delay) 
+            
 if __name__ == "__main__":
-    # Normal data set main_program = MainProgram('/Users/erika/Documents/GitHub/transforming-collections/prototype-scripts/app/data/tanc-etan_system-dataset.csv', NUMBER_OF_VECTORS)
-    main_program = MainProgram('/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/system-dataset-gif-test.csv', NUMBER_OF_VECTORS)
-    main_program.run()
+    try: 
+        main_program = MainProgram(CSV_PATH, NUMBER_OF_VECTORS, PURE_DATA_PATH, EMBEDDINGS_PATH, DELAY)
+        main_program.run()
+    except KeyboardInterrupt:
+        main_program.semantic_init.pure_data.terminate()
