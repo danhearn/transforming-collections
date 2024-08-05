@@ -12,16 +12,18 @@ class SerialCommunication:
         if os.path.exists(self.device_path):
             self.ser = serial.Serial(self.device_path, self.baud_rate)
             self.serial_connected = True
+            return print(f'Successfully connected to {self.device_path}')
         else:
            return print(f'Serial {self.device_path} is not available')
 
-    def send_serial_LED(self, message):
+    def send_serial(self, message):
         if self.serial_connected:
             try:
                 text = str(message) +'\n'
+                print(bytes(text.encode('ascii')))
                 self.ser.write(bytes(text.encode('ascii')))
             except serial.SerialException as e:
-                print(f'LED SERIAL ERROR: {e}')
+                print(f'{self.device_path} SERIAL ERROR: {e}')
                 pass
             except Exception as e:
                 print(f'serial not working: {e}')
