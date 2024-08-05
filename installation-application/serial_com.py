@@ -20,7 +20,6 @@ class SerialCommunication:
         if self.serial_connected:
             try:
                 text = str(message) +'\n'
-                print(bytes(text.encode('ascii')))
                 self.ser.write(bytes(text.encode('ascii')))
             except serial.SerialException as e:
                 print(f'{self.device_path} SERIAL ERROR: {e}')

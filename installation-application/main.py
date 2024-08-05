@@ -12,11 +12,11 @@ PURE_DATA_PATH = '/Users/erika/Documents/GitHub/data-sonification/semantic_synth
 EMBEDDINGS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/data/input/tate_wellcome_SEA_text_embeddings.npy'
 LED_MATRIX_PATH = '/dev/ttyACM0'
 ARUDUINO_PATH = '/dev/tty.usbmodem2201'
-JSON_PATH = ''
+JSON_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/country_tracks.json'
 DELAY = 5
 
 class MainProgram: 
-    def __init__(self, CSV_path, num_vectors, pure_data_path, embeddings_path,led_matrix_path, arduino_path, json_path, delay): 
+    def __init__(self, CSV_path, num_vectors, pure_data_path, embeddings_path, led_matrix_path, arduino_path, json_path, delay): 
         try:  
             self.delay = delay
             self.positive_client = semantic_client.SemanticClient("127.0.0.1", 9000)
@@ -57,12 +57,12 @@ class MainProgram:
                     print(f"Processing index: {row.name}, Countries: {row['Countries']}, Keywords: {row['Keywords']}  Label and vectors: {[row['Label']] +  list(row['Vectors'])}")
 
                     self.LED_matrix.send_serial(row['Keywords'])
-
-                    self.ding_model.run(row['Countries'])
             
                     self.gif_player(row['Gifs'])
 
                     self.semantic_model(row['Label'], vectors)
+
+                    if isinstance(row['Countries'], list) and len(row['Countries']) > 0: self.ding_model.run(row['Countries'])
 
                     sleep(self.delay) 
                 except Exception as e:
