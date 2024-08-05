@@ -39,6 +39,7 @@ class MainProgram:
 
     def cleanup(self):
         self.semantic_init.pure_data.terminate()
+        self.LED_matrix.close_serial()
 
         
     def run(self):
@@ -48,6 +49,8 @@ class MainProgram:
                     row = self.data_processor.get_random_row()
                     vectors = [float(value) for value in row['Vectors']]
                     print(f"Processing index: {row.name}, Countries: {row['Countries']}, Keywords: {row['Keywords']}  Label and vectors: {[row['Label']] +  list(row['Vectors'])}")
+
+                    self.LED_matrix.send_serial_LED(row['Keywords'])
             
                     self.gif_player(row['Gifs'])
 
