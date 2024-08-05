@@ -4,6 +4,7 @@ import data_processor as dp
 import semantic_init
 import semantic_client
 import serial_com
+import ding
 
 NUMBER_OF_VECTORS = 4
 CSV_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/system-dataset-gif-test.csv'
@@ -11,10 +12,11 @@ PURE_DATA_PATH = '/Users/erika/Documents/GitHub/data-sonification/semantic_synth
 EMBEDDINGS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/data/input/tate_wellcome_SEA_text_embeddings.npy'
 LED_MATRIX_PATH = '/dev/ttyACM0'
 ARUDUINO_PATH = '/dev/tty.usbmodem2201'
+JSON_PATH = ''
 DELAY = 5
 
 class MainProgram: 
-    def __init__(self, CSV_path, num_vectors, pure_data_path, embeddings_path,led_matrix_path, arduino_path, delay): 
+    def __init__(self, CSV_path, num_vectors, pure_data_path, embeddings_path,led_matrix_path, arduino_path, json_path, delay): 
         try:  
             self.delay = delay
             self.positive_client = semantic_client.SemanticClient("127.0.0.1", 9000)
@@ -25,6 +27,7 @@ class MainProgram:
             self.LED_matrix.connect_serial()
             self.arduino = serial_com.SerialCommunication(arduino_path)
             self.arduino.connect_serial()
+            self.ding_model = ding.DingModel(self.arduino, json_path)
         except Exception as e:
             print(f'Error initialising main program! {e}')
 
@@ -55,7 +58,7 @@ class MainProgram:
 
                     self.LED_matrix.send_serial(row['Keywords'])
 
-                    #self.arduino.send_serial(row['Countries'])
+                    self.ding_model.run(row['Countries'])
             
                     self.gif_player(row['Gifs'])
 
@@ -74,7 +77,7 @@ class MainProgram:
             
 if __name__ == "__main__":
     try: 
-        main_program = MainProgram(CSV_PATH, NUMBER_OF_VECTORS, PURE_DATA_PATH, EMBEDDINGS_PATH, LED_MATRIX_PATH, ARUDUINO_PATH ,DELAY)
+        main_program = MainProgram(CSV_PATH, NUMBER_OF_VECTORS, PURE_DATA_PATH, EMBEDDINGS_PATH, LED_MATRIX_PATH, ARUDUINO_PATH, JSON_PATH ,DELAY)
         main_program.run()
     except Exception as e:
         print(f'Error running main program: {e}')
