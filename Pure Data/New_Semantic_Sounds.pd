@@ -1,4 +1,4 @@
-#N canvas 314 25 1080 1021 12;
+#N canvas 94 25 1150 1027 12;
 #X msg 132 178 listen 9000;
 #X obj 132 203 netreceive -u -b;
 #X obj 132 231 oscparse;
@@ -9,36 +9,32 @@
 #X msg 357 64 listen 10000;
 #X obj 357 97 netreceive -u -b;
 #X obj 357 125 oscparse;
-#X floatatom 473 237 5 0 0 0 - - -;
-#X floatatom 521 228 5 0 0 0 - - -;
-#X floatatom 567 231 5 0 0 0 - - -;
-#X floatatom 616 231 5 0 0 0 - - -;
+#X floatatom 473 237 5 0 0 0 - - - 0;
+#X floatatom 521 228 5 0 0 0 - - - 0;
+#X floatatom 567 231 5 0 0 0 - - - 0;
+#X floatatom 616 231 5 0 0 0 - - - 0;
 #X obj 357 165 unpack string float float float float;
 #X text 487 114 NEGATIVE;
 #X obj 135 315 unpack string float float float float;
-#X floatatom 167 387 5 0 0 0 - - -;
-#X floatatom 223 397 5 0 0 0 - - -;
-#X floatatom 309 398 5 0 0 0 - - -;
-#X floatatom 378 400 5 0 0 0 - - -;
+#X floatatom 167 387 5 0 0 0 - - - 0;
+#X floatatom 223 397 5 0 0 0 - - - 0;
+#X floatatom 309 398 5 0 0 0 - - - 0;
+#X floatatom 378 400 5 0 0 0 - - - 0;
 #N canvas 515 182 944 544 player 0;
 #X obj 36 90 loadbang;
 #X obj 14 185 openpanel;
 #X obj 11 235 symbol;
-#X obj 163 142 bng 15 250 50 0 empty empty File 17 7 0 10 -262144 -1
--1;
-#X obj 163 164 bng 15 250 50 0 empty empty play 17 7 0 10 -4034 -1
--1;
+#X obj 163 142 bng 15 250 50 0 empty empty File 17 7 0 10 #fcfcfc #000000 #000000;
+#X obj 163 164 bng 15 250 50 0 empty empty play 17 7 0 10 #00fc04 #000000 #000000;
 #X msg 1 134 symbol;
 #X msg 10 263 open \$1 \, 1;
 #X obj 10 298 readsf~ 2;
 #X obj 11 341 outlet~;
-#X obj 163 187 bng 15 250 50 0 empty empty stop 17 7 0 10 -258113 -1
--1;
+#X obj 163 187 bng 15 250 50 0 empty empty stop 17 7 0 10 #fc0400 #000000 #000000;
 #X msg 145 261 0;
 #X obj 141 295 spigot;
 #X obj 186 259 r \$0-loop;
-#X obj 163 209 tgl 15 0 empty empty loop 17 7 0 10 -262144 -1 -1 1
-1;
+#X obj 163 209 tgl 15 0 empty empty loop 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 82 342 outlet~;
 #X connect 0 0 5 0;
 #X connect 1 0 2 1;
@@ -54,15 +50,13 @@
 #X connect 11 0 2 0;
 #X connect 12 0 11 1;
 #X coords 0 -1 1 1 150 150 1 100 100;
-#X restore 87 725 pd player;
+#X restore 67 679 pd player;
 #X obj 435 738 dac~;
-#N canvas 874 39 1046 1013 NEGATIVE 0;
+#N canvas 628 513 1046 1013 NEGATIVE 0;
 #X msg 273 184 param_set 0 \$1;
-#X obj 288 150 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 8500 1;
+#X obj 288 150 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X msg 71 321 param_set 3 \$1;
-#X obj 77 301 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 5795 1;
+#X obj 77 301 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 517 79 inlet~;
 #X obj 574 77 inlet~;
 #X obj 459 677 outlet~;
@@ -79,8 +73,7 @@
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -88,24 +81,19 @@
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -148,8 +136,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -157,24 +144,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -224,8 +206,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -233,24 +214,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -291,8 +267,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -300,24 +275,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -351,8 +321,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -360,24 +329,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -400,7 +364,7 @@ because normal plugins would simply crash Pd., f 52;
 #X connect 3 0 2 0;
 #X connect 4 0 3 0;
 #X connect 8 0 2 0;
-#X restore 459 429 pd Emergence Granular;
+#X restore 756 502 pd Emergence Granular;
 #N canvas 89 65 1406 929 MCompressor 0;
 #X obj 453 309 vstplugin~;
 #X obj 76 69 inlet~;
@@ -418,8 +382,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -427,24 +390,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -482,8 +440,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -491,24 +448,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -532,8 +484,7 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 80 438 param_set 2 \$1;
 #X text 78 475 Delay Time;
 #X obj 82 400 line;
-#X obj 86 420 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 3784 1;
+#X obj 86 420 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 74 280 line;
 #X msg 81 380 \$1 750;
 #X msg 75 260 \$1 1000;
@@ -542,8 +493,7 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 93 711 param_set 1 \$1;
 #X text 89 739 freq shift;
 #X obj 91 671 line;
-#X obj 94 692 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 4707 1;
+#X obj 94 692 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X msg 91 650 \$1 750;
 #X connect 0 0 10 2;
 #X connect 1 0 0 0;
@@ -551,15 +501,13 @@ because normal plugins would simply crash Pd., f 52;
 #X connect 3 0 2 0;
 #X connect 4 0 17 0;
 #X connect 5 0 17 1;
-#X connect 10 0 19 0;
-#X connect 10 1 19 1;
+#X connect 10 0 6 0;
+#X connect 10 1 7 0;
 #X connect 13 0 28 0;
 #X connect 14 0 35 0;
 #X connect 15 0 27 0;
 #X connect 17 0 10 0;
 #X connect 17 1 10 1;
-#X connect 19 0 6 0;
-#X connect 19 1 7 0;
 #X connect 22 0 17 2;
 #X connect 24 0 25 0;
 #X connect 25 0 22 0;
@@ -574,11 +522,9 @@ because normal plugins would simply crash Pd., f 52;
 #X f 23;
 #N canvas 142 86 1197 817 POSITIVE 0;
 #X msg 273 184 param_set 0 \$1;
-#X obj 279 151 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 0 1;
+#X obj 279 151 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X msg 86 253 param_set 3 \$1;
-#X obj 101 221 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
--1 -1 5869 1;
+#X obj 101 221 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
 #X obj 522 80 inlet~;
 #X obj 585 80 inlet~;
 #X obj 459 677 outlet~;
@@ -595,8 +541,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -604,24 +549,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -676,8 +616,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -685,24 +624,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -735,8 +669,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -744,24 +677,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -802,8 +730,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -811,24 +738,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -866,8 +788,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -875,24 +796,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -930,8 +846,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -939,24 +854,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -994,8 +904,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 155 83 s \$0-bank-data;
 #X obj 342 132 print;
 #X obj 342 105 spigot 1;
-#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
-1;
+#X obj 411 105 tgl 19 0 empty empty empty 17 7 0 10 #fcfcfc #000000 #000000 0 1;
 #X text 437 104 print messages;
 #X obj 310 77 s \$0-out;
 #X obj 310 50 t a a;
@@ -1003,24 +912,19 @@ because normal plugins would simply crash Pd., f 52;
 #X msg 28 224 latency <numsamples>;
 #X msg 30 287 midi <bytes...>;
 #X msg 29 324 sysex <bytes...>;
-#X text 263 182 a parameter has been changed in the GUI (or by changing
-a linked parameter)., f 40;
-#X text 182 224 the plugin's internal processing latency has changed
-;
+#X text 263 182 a parameter has been changed in the GUI (or by changing a linked parameter)., f 40;
+#X text 182 224 the plugin's internal processing latency has changed;
 #X text 159 287 a MIDI message sent by the plugin;
 #X text 159 324 a SysEx message sent by the plugin;
-#X text 183 242 NOTE: the value includes the additional latency caused
-by multithreading (see the "-t" flag for "open"), f 55;
+#X text 183 242 NOTE: the value includes the additional latency caused by multithreading (see the "-t" flag for "open"), f 55;
 #X msg 29 397 crash;
 #X text 381 76 goes to vstpresetbrowser;
 #X text 21 111 see [pd preset];
 #X text 93 398 the plugin subprocess has crashed.;
-#X text 94 416 This is only sent for bridged or sandboxed plugins \,
-because normal plugins would simply crash Pd., f 52;
+#X text 94 416 This is only sent for bridged or sandboxed plugins \, because normal plugins would simply crash Pd., f 52;
 #X msg 29 361 update;
 #X text 97 362 multiple parameters have changed internally;
-#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 -228856 -66577
-0;
+#X obj 25 153 cnv 15 70 20 empty empty empty 20 12 0 14 #dcdcdc #404040 0;
 #X text 31 154 events:;
 #X connect 0 0 2 0;
 #X connect 2 0 1 0;
@@ -1056,7 +960,7 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 724 89 readsf~ 2;
 #X obj 751 303 *~;
 #X obj 787 306 *~;
-#X obj 886 560 vu 15 120 empty empty -1 -8 0 10 -66577 -1 1 0;
+#X obj 886 560 vu 15 120 empty empty -1 -8 0 10 #404040 #000000 1 0;
 #N canvas 94 261 626 477 vu 0;
 #X obj 59 129 env~ 1024;
 #X obj 161 111 abs~;
@@ -1068,10 +972,10 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 59 361 outlet;
 #X obj 161 361 outlet;
 #X obj 239 89 expr 1000 / $f1;
-#X floatatom 239 117 5 0 0 0 - - -;
+#X floatatom 239 117 5 0 0 0 - - - 0;
 #X obj 161 146 slop~ 0 0 0 0 1e+09;
 #X obj 239 18 inlet;
-#X floatatom 239 57 5 0 0 0 - - -;
+#X floatatom 239 57 5 0 0 0 - - - 0;
 #X text 282 118 hz;
 #X text 284 57 peak decay time in ms;
 #X obj 59 171 t f b;
@@ -1097,7 +1001,7 @@ because normal plugins would simply crash Pd., f 52;
 #X text 968 753 RMS;
 #X text 977 718 Peak, f 7;
 #X text 1021 478 peak decay;
-#X obj 606 713 vu 15 120 empty empty -1 -8 0 10 -66577 -1 1 0;
+#X obj 606 713 vu 15 120 empty empty -1 -8 0 10 #404040 #000000 1 0;
 #N canvas 94 261 626 477 vu 0;
 #X obj 59 129 env~ 1024;
 #X obj 161 111 abs~;
@@ -1109,10 +1013,10 @@ because normal plugins would simply crash Pd., f 52;
 #X obj 59 361 outlet;
 #X obj 161 361 outlet;
 #X obj 239 89 expr 1000 / $f1;
-#X floatatom 239 117 5 0 0 0 - - -;
+#X floatatom 239 117 5 0 0 0 - - - 0;
 #X obj 161 146 slop~ 0 0 0 0 1e+09;
 #X obj 239 18 inlet;
-#X floatatom 239 57 5 0 0 0 - - -;
+#X floatatom 239 57 5 0 0 0 - - - 0;
 #X text 282 118 hz;
 #X text 284 57 peak decay time in ms;
 #X obj 59 171 t f b;
@@ -1141,19 +1045,15 @@ because normal plugins would simply crash Pd., f 52;
 #N canvas 1029 159 320 331 open 0;
 #X obj 37 301 outlet~;
 #X obj 99 301 outlet~;
-#X obj 108 124 bng 19 250 50 0 empty empty file 23 11 0 12 -262144
--1 -1;
+#X obj 108 124 bng 19 250 50 0 empty empty file 23 11 0 12 #fcfcfc #000000 #000000;
 #X msg 25 121 symbol;
 #X obj 25 97 loadbang;
 #X obj 28 165 openpanel;
-#X obj 108 147 bng 19 250 50 0 empty empty play 23 11 0 12 -4034 -1
--1;
-#X obj 108 170 bng 19 250 50 0 empty empty stop 23 11 0 12 -258113
--1 -1;
+#X obj 108 147 bng 19 250 50 0 empty empty play 23 11 0 12 #00fc04 #000000 #000000;
+#X obj 108 170 bng 19 250 50 0 empty empty stop 23 11 0 12 #fc0400 #000000 #000000;
 #X obj 36 204 symbol;
 #X obj 36 262 readsf~ 2;
-#X obj 108 194 tgl 19 0 \$0-loop \$0-loop loop 23 11 0 12 -262144 -1
--1 1 1;
+#X obj 108 194 tgl 19 0 \$0-loop \$0-loop loop 23 11 0 12 #fcfcfc #000000 #000000 0 1;
 #X msg 121 232 0;
 #X obj 113 263 spigot;
 #X msg 36 232 open \$1 \, 1;
@@ -1174,6 +1074,126 @@ because normal plugins would simply crash Pd., f 52;
 #X connect 15 0 12 1;
 #X coords 0 -1 1 1 76 120 2 100 100;
 #X restore 886 195 pd open;
+#N canvas 467 176 1453 837 RAVE 1;
+#X obj 635 49 nn~ semantic-model-1.ts encode;
+#X obj 709 608 nn~ semantic-model-1.ts decode;
+#X obj 91 251 hsl 128 15 -10 10 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 84 211 line;
+#X msg 85 191 \$1 1000;
+#X obj 118 58 inlet;
+#X obj 273 50 inlet;
+#X obj 499 51 inlet;
+#X obj 949 46 inlet;
+#X obj 737 666 outlet~;
+#X obj 806 672 outlet~;
+#X obj 278 189 hsl 128 15 -10 10 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 260 120 line;
+#X msg 261 100 \$1 1000;
+#X obj 428 315 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 262 352 line;
+#X msg 271 276 \$1 1000;
+#X obj 993 239 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X obj 988 206 line;
+#X msg 989 186 \$1 1000;
+#X obj 596 94 snapshot~;
+#X obj 541 219 nbx 5 17 -5 5 0 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 256;
+#X obj 542 259 sig~;
+#X obj 616 179 snapshot~;
+#X obj 617 222 nbx 5 17 -5 5 0 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 256;
+#X obj 612 258 sig~;
+#X obj 697 162 snapshot~;
+#X obj 698 205 nbx 5 17 -5 5 0 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 256;
+#X obj 773 165 snapshot~;
+#X obj 774 208 nbx 5 17 -5 5 0 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 256;
+#X obj 698 261 sig~;
+#X obj 657 256 sig~;
+#X obj 847 167 snapshot~;
+#X obj 848 210 nbx 5 17 -5 5 0 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000 0 256;
+#X obj 773 255 sig~;
+#X floatatom 578 135 5 0 0 0 - - - 0;
+#X floatatom 427 367 5 0 0 0 - - - 0;
+#X obj 485 340 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 484 392 5 0 0 0 - - - 0;
+#X obj 542 359 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 541 411 5 0 0 0 - - - 0;
+#X obj 602 381 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 601 433 5 0 0 0 - - - 0;
+#X obj 653 404 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 652 456 5 0 0 0 - - - 0;
+#X obj 695 426 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 694 478 5 0 0 0 - - - 0;
+#X obj 858 372 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 857 424 5 0 0 0 - - - 0;
+#X obj 904 394 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 903 446 5 0 0 0 - - - 0;
+#X obj 952 417 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 951 469 5 0 0 0 - - - 0;
+#X obj 995 435 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 994 487 5 0 0 0 - - - 0;
+#X obj 1036 452 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 1035 504 5 0 0 0 - - - 0;
+#X obj 1077 471 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 1076 523 5 0 0 0 - - - 0;
+#X obj 918 681 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 917 733 5 0 0 0 - - - 0;
+#X obj 1066 621 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 1064 639 5 0 0 0 - - - 0;
+#X obj 1104 662 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 1103 714 5 0 0 0 - - - 0;
+#X obj 1120 569 hsl 128 15 -5 5 0 0 empty empty empty -2 -8 0 10 #fcfcfc #000000 #000000 0 1;
+#X floatatom 1118 587 5 0 0 0 - - - 0;
+#X connect 0 0 20 0;
+#X connect 4 0 3 0;
+#X connect 5 0 4 0;
+#X connect 6 0 13 0;
+#X connect 7 0 16 0;
+#X connect 8 0 19 0;
+#X connect 13 0 12 0;
+#X connect 14 0 36 0;
+#X connect 16 0 15 0;
+#X connect 19 0 18 0;
+#X connect 20 0 35 0;
+#X connect 21 0 22 0;
+#X connect 23 0 24 0;
+#X connect 24 0 25 0;
+#X connect 26 0 27 0;
+#X connect 27 0 31 0;
+#X connect 28 0 29 0;
+#X connect 29 0 30 0;
+#X connect 32 0 33 0;
+#X connect 33 0 34 0;
+#X connect 36 0 1 0;
+#X connect 37 0 38 0;
+#X connect 38 0 1 1;
+#X connect 39 0 40 0;
+#X connect 40 0 1 2;
+#X connect 41 0 42 0;
+#X connect 42 0 1 3;
+#X connect 43 0 44 0;
+#X connect 44 0 1 4;
+#X connect 45 0 46 0;
+#X connect 46 0 1 5;
+#X connect 47 0 48 0;
+#X connect 48 0 1 6;
+#X connect 49 0 50 0;
+#X connect 50 0 1 7;
+#X connect 51 0 52 0;
+#X connect 52 0 1 8;
+#X connect 53 0 54 0;
+#X connect 54 0 1 9;
+#X connect 55 0 56 0;
+#X connect 56 0 1 10;
+#X connect 57 0 58 0;
+#X connect 58 0 1 11;
+#X connect 59 0 60 0;
+#X connect 60 0 1 12;
+#X connect 61 0 62 0;
+#X connect 62 0 1 13;
+#X connect 63 0 64 0;
+#X connect 64 0 1 14;
+#X connect 65 0 66 0;
+#X connect 66 0 1 15;
+#X restore 667 387 pd RAVE;
 #X connect 0 0 1 0;
 #X connect 1 0 2 0;
 #X connect 2 0 16 0;
@@ -1185,9 +1205,13 @@ because normal plugins would simply crash Pd., f 52;
 #X connect 8 0 9 0;
 #X connect 9 0 14 0;
 #X connect 10 0 23 0;
+#X connect 10 0 46 0;
 #X connect 11 0 23 1;
+#X connect 11 0 46 1;
 #X connect 12 0 23 2;
+#X connect 12 0 46 2;
 #X connect 13 0 23 3;
+#X connect 13 0 46 3;
 #X connect 14 1 10 0;
 #X connect 14 2 11 0;
 #X connect 14 3 12 0;
@@ -1200,9 +1224,7 @@ because normal plugins would simply crash Pd., f 52;
 #X connect 18 0 24 1;
 #X connect 19 0 24 2;
 #X connect 20 0 24 3;
-#X connect 23 0 22 0;
 #X connect 23 0 38 0;
-#X connect 23 1 22 1;
 #X connect 23 1 38 0;
 #X connect 25 0 26 0;
 #X connect 29 0 31 0;
@@ -1219,3 +1241,5 @@ because normal plugins would simply crash Pd., f 52;
 #X connect 45 0 30 0;
 #X connect 45 1 23 5;
 #X connect 45 1 30 0;
+#X connect 46 0 22 0;
+#X connect 46 1 22 1;
