@@ -58,11 +58,12 @@ class GifPlayer:
         self.frame_index = 0
         self.prev_frame = -1
         self.active_gif_index = 0
+        imgui.create_context()
+        self.window, self.window_width, self.window_height, self.monitors = self.impl_glfw_init()
 
     def run(self):
         # Setup the OpenGL and ImGUI context / renderers
-        imgui.create_context()
-        self.window, self.window_width, self.window_height, self.monitors, self.impl_imgui = self.impl_glfw_init()
+        self.impl_imgui = self.set_context()
         # Define the remaining OpenGL and texture data requires
         self.load_bind_all_data()
         # MAIN LOOP
@@ -242,7 +243,16 @@ class GifPlayer:
             glfw.terminate()
             raise e
         finally:
-            return (window, window_width, window_height, monitors, impl_imgui)
+            return (window, window_width, window_height, monitors)
+    
+    def set_context(self):
+        glfw.make_context_current(self.window)
+        impl_imgui = GlfwRenderer(self.window)
+        glfw.set_framebuffer_size_callback(self.window, self.framebuffer_size_callback)
+        glfw.set_key_callback(self.window, self.key_callback)
+        gl.glViewport(0, 0, self.window_width, self.window_height)
+        gl.glClearColor(0.0, 0.0, 0.0, 1.0)
+        return impl_imgui
         
     
     def load_bind_all_data(self):
