@@ -44,6 +44,7 @@ class GifPlayer:
         self.monitors = None
         self.monitor_choice = 0
         self.is_fullscreen = False
+        self.glfw_initiliazed = False
 
         self.gif_textures = None
         self.active_gif = None
@@ -76,7 +77,7 @@ class GifPlayer:
         except Exception as e:
             print(f"An error occurred in GifPlayer's run method: {e}")
         finally:
-            self.terminate()
+            self.queue.put("terminate")
             sys.exit(1)
 
     def render(self):
@@ -101,8 +102,11 @@ class GifPlayer:
         gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_w"), self.window_width)
         gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_h"), self.window_height)
         glfw.swap_buffers(self.window)
-        glfw.poll_events()
         self.impl_imgui.process_inputs()
+
+    def impl_poll_events(self):
+        if self.glfw_initiliazed:
+            glfw.poll_events()
 
     def update_frame_index(self):
         # Update the frame index to the next frame if the time has passed the frame duration.
@@ -233,11 +237,13 @@ class GifPlayer:
                 sys.exit(1)
             # Attach the OpenGL context to the window
             glfw.make_context_current(window)
-            impl_imgui = GlfwRenderer(window)
+            # impl_imgui = GlfwRenderer(window)
             glfw.set_framebuffer_size_callback(window, self.framebuffer_size_callback)
             glfw.set_key_callback(window, self.key_callback)
             gl.glViewport(0, 0, window_width, window_height)
             gl.glClearColor(0.0, 0.0, 0.0, 1.0)
+            
+            self.glfw_initiliazed = True
         except Exception as e:
             print("GLFW INITIALIZATION FAILED")
             glfw.terminate()
@@ -254,7 +260,6 @@ class GifPlayer:
         gl.glClearColor(0.0, 0.0, 0.0, 1.0)
         return impl_imgui
         
-    
     def load_bind_all_data(self):
         # Loads all of the data needed to render the gifs from now on. The gifs need to be converted into
         # a format which can be rendered in the window, AKA textures.
@@ -421,6 +426,8 @@ class GifPlayer:
         safe_execute(gl.glUseProgram, 0)
         safe_execute(gl.glDeleteProgram, self.program_id)
         safe_execute(glfw.terminate)
+        self.glfw_initiliazed = False
+        print("BYE")
 
 def safe_execute(func, *args):
     try:
