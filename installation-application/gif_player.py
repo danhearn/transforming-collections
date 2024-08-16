@@ -92,7 +92,12 @@ class GifPlayer:
         if self.show_settings:
             _, self.show_settings = imgui.begin("Settings", True)
             imgui.text(f"{len(self.monitors)} possible monitors found:")
-
+            if imgui.begin_combo("Monitor", f"{self.monitor_choice}"):
+                for i, monitor in enumerate(self.monitors):
+                    clicked, selected = imgui.selectable(f"Monitor {i}", self.monitor_choice == i)
+                    if clicked:
+                        self.monitor_choice = i
+                imgui.end_combo()
             if imgui.button("Toggle Fullscreen"):
                 self.toggle_fullscreen()
             imgui.text(f"FPS: {self.fps()}")
