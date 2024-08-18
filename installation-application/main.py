@@ -52,7 +52,6 @@ class MainProgram:
         self.LED_matrix.close_serial()
         self.arduino.close_serial()
 
-        
     def run(self):
         try:
             while True:
