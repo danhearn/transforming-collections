@@ -20,10 +20,7 @@ class GifPlayer:
         # The main initiliazation happens in the 'run()' method because the renderer is designed to be
         # used on a separate thread than the main program. It's not possible to initialize the OpenGL
         # context on one thread and render on another.
-        #
-        #This method just defines some private variables for loading and displaying the GIFs.
-
-        # The Gif's are stored in a 2D list where each gif is a list of frames. Stored like this:
+        # The Gif's are stored in a 2D list where each gif is a list of frames:
         #   [
         #       [gif1_frame1, gif1_frame2, gif1_frame3, ...],
         #       [gif2_frame1, gif2_frame2, gif2_frame3, ...],
@@ -31,8 +28,6 @@ class GifPlayer:
         #   ] 
         # Each frame also contains the width and height of the gif so the renderer can adjust the texture.
         # They also contain the duration of the frame in milliseconds.
-        #
-        # These are private variables for internal use
 
         self.gifs_path = gifs_path
         self.queue = queue
@@ -59,11 +54,12 @@ class GifPlayer:
         self.frame_index = 0
         self.prev_frame = -1
         self.active_gif_index = 0
-        imgui.create_context()
-        self.window, self.window_width, self.window_height, self.monitors = self.impl_glfw_init()
+
 
     def run(self):
         # Setup the OpenGL and ImGUI context / renderers
+        imgui.create_context()
+        self.window, self.window_width, self.window_height, self.monitors = self.impl_glfw_init()
         self.impl_imgui = self.set_context()
         # Define the remaining OpenGL and texture data requires
         self.load_bind_all_data()
@@ -77,6 +73,7 @@ class GifPlayer:
         except Exception as e:
             print(f"An error occurred in GifPlayer's run method: {e}")
         finally:
+            self.terminate()
             self.queue.put("terminate")
             sys.exit(1)
 
@@ -107,6 +104,8 @@ class GifPlayer:
         gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_w"), self.window_width)
         gl.glUniform1f(gl.glGetUniformLocation(self.program_id, "window_h"), self.window_height)
         glfw.swap_buffers(self.window)
+        # self.impl_poll_events()
+        glfw.poll_events()
         self.impl_imgui.process_inputs()
 
     def impl_poll_events(self):
@@ -432,7 +431,6 @@ class GifPlayer:
         safe_execute(gl.glDeleteProgram, self.program_id)
         safe_execute(glfw.terminate)
         self.glfw_initiliazed = False
-        print("BYE")
 
 def safe_execute(func, *args):
     try:

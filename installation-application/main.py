@@ -1,3 +1,4 @@
+import multiprocessing
 from time import sleep
 import pandas as pd
 
@@ -6,6 +7,7 @@ import semantic_init
 import semantic_client
 import serial_com
 import ding
+import gif_player
 
 NUMBER_OF_VECTORS = 4
 CSV_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/system-dataset-gif-test.csv'
@@ -17,7 +19,7 @@ JSON_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation
 DELAY = 5
 
 class MainProgram: 
-    def __init__(self, CSV_path, num_vectors, pure_data_path, embeddings_path, led_matrix_path, arduino_path, json_path, delay): 
+    def __init__(self, CSV_path = CSV_PATH, num_vectors = NUMBER_OF_VECTORS, pure_data_path = PURE_DATA_PATH, embeddings_path = EMBEDDINGS_PATH, led_matrix_path = LED_MATRIX_PATH, arduino_path = ARUDUINO_PATH, json_path = JSON_PATH, delay = DELAY): 
         try:  
             self.delay = delay
             self.positive_client = semantic_client.SemanticClient("127.0.0.1", 9000)
@@ -38,15 +40,14 @@ class MainProgram:
         else:
             self.negative_client.send_vectors("/negative", vectors)
 
-    def gif_player(self, gifs):
-        for i in range(64):
-            if gifs == f"gif-{i}":
-                print(f"Found gif-{i}")
+    def send_to_gif_player(self, gifs):
+        self.gif_queue.put(gifs)
 
     def cleanup(self):
         self.semantic_init.pure_data.terminate()
         self.LED_matrix.close_serial()
         self.arduino.close_serial()
+        self.gif_queue.put("terminate")
 
         
     def run(self):
@@ -59,7 +60,7 @@ class MainProgram:
 
                     if pd.notnull(row['Keywords']): self.LED_matrix.send_serial(row['Keywords'])
             
-                    self.gif_player(row['Gifs'])
+                    self.send_to_gif_player(row['Gifs'])
 
                     self.semantic_model(row['Label'], vectors)
 
@@ -75,10 +76,25 @@ class MainProgram:
         finally:
             self.cleanup()
 
+def gif_player_process(self, queue):
+    player = gif_player.GifPlayer("./data/gifs", queue)
+    while True:
+        if not queue.empty():
+            message = queue.get()
+            if message == "terminate":
+                player.terminate()
+
             
 if __name__ == "__main__":
     try: 
-        main_program = MainProgram(CSV_PATH, NUMBER_OF_VECTORS, PURE_DATA_PATH, EMBEDDINGS_PATH, LED_MATRIX_PATH, ARUDUINO_PATH, JSON_PATH ,DELAY)
+        gif_queue = multiprocessing.Queue()
+
+        main_program = MainProgram()
+
+        gif_player_process = multiprocessing.Process(target=gif_player_process, args=gif_queue)
+
+        gif_player.start()
+
         main_program.run()
     except Exception as e:
         print(f'Error running main program: {e}')
