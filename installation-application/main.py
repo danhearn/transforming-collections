@@ -1,4 +1,5 @@
 from time import sleep
+import pandas as pd
 
 import data_processor
 import semantic_init
@@ -10,7 +11,7 @@ NUMBER_OF_VECTORS = 4
 CSV_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/system-dataset-gif-test.csv'
 PURE_DATA_PATH = '/Users/erika/Documents/GitHub/data-sonification/semantic_synth(with-effects).pd'
 EMBEDDINGS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/data/input/tate_wellcome_SEA_text_embeddings.npy'
-LED_MATRIX_PATH = '/dev/ttyACM0'
+LED_MATRIX_PATH = '/dev/tty.usbmodem2101'
 ARUDUINO_PATH = '/dev/tty.usbmodem2201'
 JSON_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/country_tracks.json'
 DELAY = 5
@@ -56,7 +57,7 @@ class MainProgram:
                     vectors = [float(value) for value in row['Vectors']]
                     print(f"Processing index: {row.name}, Countries: {row['Countries']}, Keywords: {row['Keywords']}  Label and vectors: {[row['Label']] +  list(row['Vectors'])}")
 
-                    self.LED_matrix.send_serial(row['Keywords'])
+                    if pd.notnull(row['Keywords']): self.LED_matrix.send_serial(row['Keywords'])
             
                     self.gif_player(row['Gifs'])
 
