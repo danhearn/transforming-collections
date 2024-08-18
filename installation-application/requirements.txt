@@ -16,3 +16,11 @@ serial==0.0.97
 six==1.16.0
 threadpoolctl==3.5.0
 tzdata==2024.1
+glfw==2.7.0
+numpy==2.0.1
+pandas==2.2.2
+Pillow==10.4.0
+PyOpenGL==3.1.7
+wheel 
+setuptools
+imgui[glfw]
