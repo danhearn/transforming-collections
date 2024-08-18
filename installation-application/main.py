@@ -1,4 +1,4 @@
-import multiprocessing
+from multiprocessing import Process, Queue
 from time import sleep
 import pandas as pd
 
@@ -31,6 +31,10 @@ class MainProgram:
             self.arduino = serial_com.SerialCommunication(arduino_path)
             self.arduino.connect_serial()
             self.ding_model = ding.DingModel(self.arduino, json_path)
+            self.queue = Queue()
+            self.gif_player = gif_player.GifPlayer("./data/gifs", self.queue)
+            self.gif_player_process = Process(target=self.gif_player.run)
+            self.gif_player_process.start()
         except Exception as e:
             print(f'Error initialising main program! {e}')
 
@@ -41,13 +45,12 @@ class MainProgram:
             self.negative_client.send_vectors("/negative", vectors)
 
     def send_to_gif_player(self, gifs):
-        self.gif_queue.put(gifs)
+        self.queue.put(gifs)
 
     def cleanup(self):
         self.semantic_init.pure_data.terminate()
         self.LED_matrix.close_serial()
         self.arduino.close_serial()
-        self.gif_queue.put("terminate")
 
         
     def run(self):
@@ -75,26 +78,10 @@ class MainProgram:
             print(f'Error running main loop: {e}')
         finally:
             self.cleanup()
-
-def gif_player_process(self, queue):
-    player = gif_player.GifPlayer("./data/gifs", queue)
-    while True:
-        if not queue.empty():
-            message = queue.get()
-            if message == "terminate":
-                player.terminate()
-
             
 if __name__ == "__main__":
     try: 
-        gif_queue = multiprocessing.Queue()
-
         main_program = MainProgram()
-
-        gif_player_process = multiprocessing.Process(target=gif_player_process, args=gif_queue)
-
-        gif_player.start()
-
         main_program.run()
     except Exception as e:
         print(f'Error running main program: {e}')
