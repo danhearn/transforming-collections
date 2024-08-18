@@ -6,10 +6,6 @@ import semantic_init
 import semantic_client
 import serial_com
 import ding
-import gif_player as gp
-
-import threading
-import queue
 
 NUMBER_OF_VECTORS = 4
 CSV_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/system-dataset-gif-test.csv'
@@ -52,10 +48,6 @@ class MainProgram:
         self.LED_matrix.close_serial()
         self.arduino.close_serial()
 
-        self.queue = queue.Queue()
-        self.gif_player = gp.GifPlayer("./data/gifs", self.queue)
-        self.gif_player_thread = threading.Thread(target=self.gif_player.run)
-        self.gif_player_thread.start()
         
     def run(self):
         try:
@@ -84,23 +76,6 @@ class MainProgram:
             self.cleanup()
 
             
-        while True:
-            if not self.queue.empty():
-                message = self.queue.get()
-                if message == "terminate":
-                    self.gif_player.terminate()
-            self.gif_player.impl_poll_events()
-            row = self.data_processor.get_random_row()
-            print(f"Processing index: {row.name}, Countries: {row['Countries']}, Keywords: {row['Keywords']}") #, Label and vectors: {[row['Label']] +  list(row['Vectors'])}
-            
-            # this is just for testing, but I've added about 64 indexes with gifs
-            # for i in range(64):
-            #     if row['Gifs'] == f"gif-{i}":
-            #         print(f"Found gif-{i}")
-            #         self.queue.put(f"gif-{i}")
-
-            # sleep(0.1) # you can change this, but in the actual running of the system there will be around 5 - 10 seconds of delay whilst the midi file is played
-
 if __name__ == "__main__":
     try: 
         main_program = MainProgram(CSV_PATH, NUMBER_OF_VECTORS, PURE_DATA_PATH, EMBEDDINGS_PATH, LED_MATRIX_PATH, ARUDUINO_PATH, JSON_PATH ,DELAY)
