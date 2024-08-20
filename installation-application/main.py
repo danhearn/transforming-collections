@@ -7,7 +7,7 @@ import semantic_init
 import semantic_client
 import serial_com
 import ding
-import gif_player
+import media_player
 
 NUMBER_OF_VECTORS = 4
 CSV_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/system-dataset-gif-test.csv'
@@ -31,10 +31,8 @@ class MainProgram:
             self.arduino = serial_com.SerialCommunication(arduino_path)
             self.arduino.connect_serial()
             self.ding_model = ding.DingModel(self.arduino, json_path)
-            self.queue = Queue()
-            self.gif_player = gif_player.GifPlayer("./data/gifs", self.queue)
-            self.gif_player_process = Process(target=self.gif_player.run)
-            self.gif_player_process.start()
+            self.media_player = media_player.MediaPlayer()
+            self.media_player.start_on_new_process()
         except Exception as e:
             print(f'Error initialising main program! {e}')
 
@@ -43,9 +41,6 @@ class MainProgram:
             self.positive_client.send_vectors("/positve", vectors)
         else:
             self.negative_client.send_vectors("/negative", vectors)
-
-    def send_to_gif_player(self, gifs):
-        self.queue.put(gifs)
 
     def cleanup(self):
         self.semantic_init.pure_data.terminate()
@@ -62,7 +57,7 @@ class MainProgram:
 
                     if pd.notnull(row['Keywords']): self.LED_matrix.send_serial(row['Keywords'])
             
-                    self.send_to_gif_player(row['Gifs'])
+                    self.media_player.queue_media(row['Gifs'])
 
                     self.semantic_model(row['Label'], vectors)
 
