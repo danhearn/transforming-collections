@@ -1,8 +1,8 @@
 installation-venv/
 myVenv/
 __pycache__/
-gif_rename.py
 *.pyc
 imgui
 vids/
 venv/
+gif_player.py
