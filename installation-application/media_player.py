@@ -33,11 +33,6 @@ class MediaPlayer:
         # Main loop
         try:
             while not self.window.should_close():
-                if glfw.get_key(self.window.window, glfw.KEY_SPACE) == glfw.PRESS:
-                    random_media = random.choice(list(self.media.values()))
-                    # print(random_media.ID)
-                    self.queue_media("stock")
-                    # self.queue_media(f"{random_media.ID}")
                 self.window.update()
                 self.check_queue()
                 if(self.active_media is not None):
