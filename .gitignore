@@ -1,0 +1,9 @@
+installation-venv/
+myVenv/
+__pycache__/
+*.pyc
+imgui
+vids/
+venv/
+gif_player.py
+imgui.ini
