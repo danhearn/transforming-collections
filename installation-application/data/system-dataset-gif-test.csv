@@ -1,4 +1,4 @@
-Museum,ID_Wellcome_id,ID_Wellcome_Wellcome system no.,ID_Wellcome_referenceNumber,ID_Tate_ACNO,Countries,Title,Description,Label,Keywords,Gifs
+Museum,ID_Wellcome_id,ID_Wellcome_Wellcome system no.,ID_Wellcome_referenceNumber,ID_Tate_ACNO,Countries,Title,Description,Label,Keywords,Media
 Wellcome,n6d6erfb,b31520777,SA/DRS/G/6,,['Malaysia'],Malaysia,Set of materials created by organisations based in Malaysia. Keywords: Drugs,0,DRUGS,gif-1
 Wellcome,pb4qhm4y,b19710598,SA/WFO/H/15,,['Malaysia'],Malaysia,"Papers pertaining to the Malaysia Occupational Therapists Association application for membership of the World Federation of Occupationl Therapists. Include copies of the constitution dated 1979 and 1992, code of conduct document, membership application form and a list of members and officers of the association at the time of application (1979).",1,MEMBERSHIP,gif-2
 Wellcome,t7ry4sym,b18475887,PP/RRM/A.5/43,,['Malaysia'],Malaysia,,0,,gif-3
@@ -19,14 +19,14 @@ Wellcome,hfvburrg,b28694417,PP/LOW/W/9,,['Malaysia'],Photographs of mosaics made
 Wellcome,mnhgsx6t,b29081312,PP/WRO/B/1/15,,"['Thailand', 'Malaysia']","SAO/dRTA - Thailand, Malaysia, New Guinea",Title given reflects original title.,0,,
 Wellcome,x6subbyc,b33186121,WT/D/1/20/1/47/5,,['Malaysia'],"M0005695: Melanau sickness boat, Sarawak, Malaysia","Reproduction of a photograph of a model of a lancang (lanchang), a type of sailing ship, used by the Melanau people of Sarawak, Malaysia, to hold a dakan which is then floated down the river. A dakan is a carved sickness image. The photograph was published in Journal of the Royal Anthropological Institute, also known as Man, volume 38, 1908. A photograph of the image was acquired by the Wellcome Historical Medical Museum and accessioned in 1938 (accession number PHO 10936).",1,the Melanau people of Sarawak.,
 Wellcome,c9edr3n6,b18283329,RAMC/1870,,['Malaysia'],"Memorabilia of 16th Field Ambulance in Penang, Malaysia",,0,,
-Wellcome,hrvykfze,b18562280,RAMC/846,,['Malaysia'],"Visitors book, British Military Maternity Hospital, Penang, Malaysia",,0,,
-Wellcome,xyzemm2e,b18297602,GC/143/8/4,,['Malaysia'],"Report of British Council tour, Malaysia and Japan",,0,,
+Wellcome,hrvykfze,b18562280,RAMC/846,,['Malaysia'],"Visitors book, British Military Maternity Hospital, Penang, Malaysia",,0,,vid-1
+Wellcome,xyzemm2e,b18297602,GC/143/8/4,,['Malaysia'],"Report of British Council tour, Malaysia and Japan",,0,,vid-1
 Wellcome,nq3jrd2r,b33182644,WT/D/1/20/1/47/45,,['Malaysia'],"M0005734: Melanau traditional healer from Sarawak, Malaysia","Reproduction of a photograph published as plate 34, figure 4 in Lawrence, A.E: ""Some Aspects of Spirit Worship Amongst the Milano of Sarawak"", The Journal of the Royal Anthropological Institute of Great Britain and Ireland, vol.38 (1908) with the caption ""Witch Doctor and Aparatus"". Milano refers to the Melanau ethnic group. A photograph of figure 4 was acquired by the Wellcome Historical Medical Museum and accessioned in 1938 (accession number PHO 10962).",1,Some Aspects of Spirit Worship Amongst the Milano of Sarawak. Witch Doctor and Aparatus. Melanau ethnic group.,
 Wellcome,qjn6z7pm,b30061441,WTI/DPB/C/2/4/6,,['Malaysia'],Peptic Ulcer Survey. Questionnaires filled in by hospitals: Malaysia,Monthly returns from hospitals in Malaysia.,0,hospitals in Malaysia,
 Wellcome,kqepz2v2,b18219214,821921i,,['Malaysia'],"Rice and its pests in Malaysia. Colour lithograph, 19--.","Rice: the different stages of its cultivation; pests which attack it at various stages of its growth; and chemicals and other methods recommended to control those pests. The pests are: ulat ratus (larvae of the lawn armyworm, Spodoptera mauritia); ketam (crabs); bena hijau & bena puteh (leafhoppers); ulat layar (rice caseworm); ulat lipat daun (larvae of the rice leafroller); kutu bruang (Scotinophora coarctata, black bug); ulat batang padi (stem borers); pianggang (leptocoris, soapberry bugs); burong (bird); tikus (rats)",1,"ulat ratus (larvae of the lawn armyworm, Spodoptera mauritia); ketam (crabs); bena hijau & bena puteh (leafhoppers); ulat layar (rice caseworm); ulat lipat daun (larvae of the rice leafroller); kutu bruang (Scotinophora coarctata, black bug); ulat batang padi (stem borers); pianggang (leptocoris, soapberry bugs); burong (bird); tikus (rats)",
 Wellcome,teemsctn,b18626798,SA/ASH/U/50,,"['Malaysia', 'Philippines']","Macedonia, Malaysia, Mexico, Netherlands, Norway, Philippines, Poland, Romania and Russia","Press cuttings from 1997,concerning smoking related issues in Macedonia, Malaysia, Mexico, Netherlands, Norway, Philippines, Poland, Romania and Russia.",1,"smoking related issues in Macedonia, Malaysia, Mexico, Netherlands, Norway, Philippines, Poland, Romania and Russia.",
 Wellcome,n724ap9w,b19727318,SA/ICM/M/5/9,,['Malaysia'],"Report of the West Asia Working Party Kuala Lumpur, Malaysia",,0,,
-Wellcome,wvxy4xec,b19416477,PP/PCG/D/90/32-41,,['Malaysia'],"Yap Loy Fong, Institute of Medical Research Kula Lampur, Malaysia",,0,,
+Wellcome,wvxy4xec,b19416477,PP/PCG/D/90/32-41,,['Malaysia'],"Yap Loy Fong, Institute of Medical Research Kula Lampur, Malaysia",,0,,vid-1
 Wellcome,wxd3nhf8,b33185773,WT/D/1/20/1/45/24,,['Malaysia'],"M0005511: Peace-making between the Baram and Batang Kayan tribes, Marudi, Malaysia","Reproduction of a group photograph taken at Claudetown (now Marudi), Malaysia. Published in Hose, Charles: The pagan tribes of Borneo, London, 1912. A print of the photograph was acquired by the Wellcome Historical Medical Museum and accessioned in 1938 (accession number PHO 10798).",1,The pagan tribes of Borneo,
 Wellcome,hvphswu2,b18711509,PP/CDW/H.9,,['Malaysia'],"K Elliott re Hospital assistants in Malaysia, paper by Kris Heggenhougen, University of California",,0,,
 Wellcome,n7dfgej3,b11793077,21439i,,['Malaysia'],"Chinese people driving away evil spirits at Malacca, Malaysia. Wood engraving by D. Macpherson, 1891.",,1,,
@@ -136,13 +136,13 @@ Wellcome,ky86avxy,,,,,MS Malay 1 part 1 item 1,,0,,
 Wellcome,m4btg9me,,,,,MS Malay 3 part 5 item 1,,0,,
 Wellcome,nngstpet,,,,,MS Malay 1 part 1 item 2,,0,,
 Wellcome,nze489rn,,,,,MS Malay 7 part 5 item 1,,0,,
-Wellcome,pc2dcmay,,,,,MS Malay 8 part 7 item 3,,0,,
-Wellcome,pdr9fjvc,,,,,MS Malay 3 part 6 item 2,,0,,
+Wellcome,pc2dcmay,,,,,MS Malay 8 part 7 item 3,,0,,vid-1
+Wellcome,pdr9fjvc,,,,,MS Malay 3 part 6 item 2,,0,,vid-1
 Wellcome,pdvbfgb2,,,,,MS Malay 3 part 1 item 1,,0,,
 Wellcome,qy4jvadk,,,,,MS Malay 2 part 5 item 1,,0,,
 Wellcome,r3jcczed,,,,,MS Malay 7 part 1 item 1,,0,,
 Wellcome,rhksz9mq,,,,,MS Malay 2 part 1 item 1,,0,,
-Wellcome,rhrc78ps,,,,,MS Malay 6 part 2 item 1,,0,,
+Wellcome,rhrc78ps,,,,,MS Malay 6 part 2 item 1,,0,,vid-1
 Wellcome,rkvxu2vx,,,,,MS Malay 6 part 3 item 1,,0,,
 Wellcome,rtcaxe9v,,,,,MS Malay 8 part 1 item 1,,0,,
 Wellcome,sm564rjq,,,,,MS Malay 1 part 2 item 1,,0,,
