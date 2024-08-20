@@ -41,7 +41,6 @@ class Window:
 
             glfw.set_framebuffer_size_callback(window, self.framebuffer_size_callback)
             glfw.set_key_callback(window, self.key_callback)
-            self.toggle_fullscreen()
             
         except Exception as e:
             print("GLFW INITIALIZATION FAILED")
