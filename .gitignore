@@ -4,3 +4,4 @@ __pycache__/
 gif_rename.py
 *.pyc
 imgui.ini
+vids/
