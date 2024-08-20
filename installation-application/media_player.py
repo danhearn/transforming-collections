@@ -9,9 +9,6 @@ import sys
 import glfw
 import random
 
-GIFS_PATH  = "./data/gifs/"
-VIDS_PATH = "./data/videos/"
-
 class MediaPlayer:
     def __init__(self, gifs_path, vids_path):
         self.gifs_path = gifs_path
@@ -135,3 +132,9 @@ class MediaPlayer:
         self.window.terminate()
         sys.exit(0)
     
+if __name__ == "__main__":
+    GIFS_PATH  = "./data/gifs/"
+    VIDS_PATH = "./data/vids/"
+    mp = MediaPlayer(GIFS_PATH, VIDS_PATH)
+    mp.start_on_new_process()
+    mp.queue_media("vid-10")
