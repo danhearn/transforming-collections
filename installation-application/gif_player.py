@@ -9,10 +9,11 @@ from imgui.integrations.glfw import GlfwRenderer
 from queue import Empty
 
 from PIL import Image, ImageSequence
+import cv2
 # from PIL.Image import Transpose
 
 class GifPlayer:
-    def __init__(self, gifs_path="./data/gifs", queue=None):
+    def __init__(self, gifs_path="./data/gifs", vids_path="./data/vids", queue=None):
 
         # The Gif Player contains a basic OpenGL renderer and GLFW window. There is also an ImGui GUI
         # for basic debugging and usabilitiy.
@@ -30,6 +31,7 @@ class GifPlayer:
         # They also contain the duration of the frame in milliseconds.
 
         self.gifs_path = gifs_path
+        self.vids_path = vids_path
         self.queue = queue
 
         self.show_settings = False
@@ -42,19 +44,25 @@ class GifPlayer:
         self.glfw_initiliazed = False
 
         self.gif_textures = None
+        self.gif_textures = None
         self.active_gif = None
         self.vao = None
         self.vbo = None
         self.ebo = None
+        self.pbos = None
         self.program_id = None 
         self.shader_ids = None
 
         self.current_time = 0
         self.last_update_time = 0
+        self.frame_times = []
         self.frame_index = 0
         self.prev_frame = -1
         self.active_gif_index = 0
 
+        self.cap = None
+        self.texture_ids = None
+        self.pbo_ids = None
 
     def run(self):
         # Setup the OpenGL and ImGUI context / renderers
@@ -66,20 +74,21 @@ class GifPlayer:
         # MAIN LOOP
         try:
             while self.should_run():
-                self.update_window()
                 self.update_active_gif()
+                self.update_window()
                 self.update_imgui()
                 self.render()
         except Exception as e:
             print(f"An error occurred in GifPlayer's run method: {e}")
         finally:
             self.terminate()
-            self.queue.put("terminate")
             sys.exit(1)
 
     def render(self):
         self.background()
-        if self.active_gif is not None and self.frame_index != self.prev_frame:
+        if self.active_gif is not None and self.frame_index != self.prev_frame and self.active_gif_index > 24:
+            self.draw_active_gif()
+        elif self.active_gif_index < 25:
             self.draw_active_gif()
         imgui.render()
         self.impl_imgui.render(imgui.get_draw_data())
@@ -122,9 +131,9 @@ class GifPlayer:
 
     def update_active_gif(self):
         prev = self.active_gif
+        prev_i  = self.active_gif_index 
         message = None
-
-        if self.queue is not None:
+        if not self.queue.empty():
             try:
                 message = self.queue.get_nowait()
                 print(f"Received instruction to play: {message}")
@@ -136,20 +145,58 @@ class GifPlayer:
                 message = message.lstrip("gif-")
                 self.restart_gif()
                 self.active_gif_index = int(message) - 1
-                self.active_gif = self.gif_textures[self.active_gif_index]
+                if(self.active_gif_index > 24):
+                    self.active_gif = self.gif_textures[self.active_gif_index]
 
         ## TEMPORARY
         if glfw.get_key(self.window, glfw.KEY_SPACE) == glfw.PRESS:
             self.restart_gif()
             self.active_gif_index = (self.active_gif_index+1)%len(self.gif_textures)
-            self.active_gif = self.gif_textures[self.active_gif_index]
+            if(self.active_gif_index > 24):
+                self.active_gif = self.gif_textures[self.active_gif_index]
 
         if self.active_gif is not None:
-            active_texture, w, h, _ = self.active_gif[self.frame_index]
-            if prev != self.active_gif:
-                self.set_tex_dimensions(w, h)
-            self.update_frame_index()
-            self.apply_gif_texture(active_texture)
+            if self.active_gif_index > 24:
+                active_texture, w, h, _ = self.active_gif[self.frame_index]
+                if prev != self.active_gif:
+                    self.set_tex_dimensions(w, h)
+                self.update_frame_index()
+                self.apply_gif_texture(active_texture)
+            else:
+                if prev_i != self.active_gif_index and self.cap is not None:
+                    self.cap.release()
+                    self.cap = None
+                if self.cap is None:
+                    vid_path = os.path.join(self.vids_path, f"vid-{self.active_gif_index+1}.mp4")
+                    self.cap = cv2.VideoCapture(vid_path)
+                fps = 24
+                if self.cap.isOpened():
+                    width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                    height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                    self.set_tex_dimensions(width, height)
+                    fps = self.cap.get(cv2.CAP_PROP_FPS)
+                    self.pbo_ids = self.get_pbos_for_size(width, height)
+                    self.texture_ids = self.get_textures_for_size(width, height)
+                self.current_time = glfw.get_time()
+                current_frame = self.cap.get(cv2.CAP_PROP_POS_FRAMES)
+                if self.current_time - self.last_update_time >= 1/fps:
+                    ret, frame = self.cap.read()
+                    if ret:
+                    #     # Convert the frame to a format suitable for OpenGL
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+                        frame = cv2.flip(frame, 0)
+                    #     # Bind the PBO and copy the frame data into it
+                        gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, self.pbo_ids[0])
+                        gl.glBufferData(gl.GL_PIXEL_UNPACK_BUFFER, width * height * 4, None, gl.GL_STREAM_DRAW)
+                        ptr = gl.glMapBufferRange(gl.GL_PIXEL_UNPACK_BUFFER, 0, width*height*4, gl.GL_MAP_WRITE_BIT | gl.GL_MAP_FLUSH_EXPLICIT_BIT | gl.GL_MAP_UNSYNCHRONIZED_BIT)
+                        frame_data_bytes = frame.data.tobytes()
+                        ctypes.memmove(ptr, frame_data_bytes, frame.nbytes)
+                        gl.glFlushMappedBufferRange(gl.GL_PIXEL_UNPACK_BUFFER, 0, width * height * 4)
+                        gl.glUnmapBuffer(gl.GL_PIXEL_UNPACK_BUFFER)
+                    #     # Bind the texture and copy the PBO into it
+                        gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_ids[0])
+                        gl.glTexSubImage2D(gl.GL_TEXTURE_2D, 0, 0, 0, width, height, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+                    self.last_update_time = self.current_time
 
     def restart_gif(self):
         self.prev_frame = -1
@@ -160,8 +207,14 @@ class GifPlayer:
         prev_time = self.current_time
         self.current_time = glfw.get_time()
         delta_time = self.current_time - prev_time
-        fps = 1.0 / delta_time if delta_time > 0 else 0
-        return fps
+
+        # Keep track of the frame times of the last second.
+        self.frame_times.append((self.current_time, delta_time))
+        self.frame_times = [(t, dt) for (t, dt) in self.frame_times if self.current_time - t < 1.0]
+
+        # Calculate the average FPS over the last second.
+        average_fps = len(self.frame_times) / sum(dt for t, dt in self.frame_times) if self.frame_times else 0
+        return average_fps
 
     def toggle_fullscreen(self):
         # Toggle the window between fullscreen and windowed mode.
@@ -173,8 +226,6 @@ class GifPlayer:
             self.is_fullscreen = True
         else:
             glfw.set_window_monitor(self.window, None, 0, 0, 640, 480, glfw.DONT_CARE)
-            print(glfw.get_window_monitor(self.window))
-            # glfw.set_window_size(self.window, self.window_width, self.window_height)
             self.is_fullscreen = False
 
     def set_tex_dimensions(self, w, h):
@@ -197,23 +248,6 @@ class GifPlayer:
     
     def draw_active_gif(self):
         gl.glDrawElements(gl.GL_TRIANGLES, 6, gl.GL_UNSIGNED_INT, None)
-
-    def framebuffer_size_callback(self, window, width, height):
-        gl.glViewport(0, 0, width, height)
-        self.window_width = width
-        self.window_height = height
-
-    def key_callback(self, window, key, scancode, action, mods):
-        if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-            self.show_settings = not self.show_settings
-        if key == glfw.KEY_F11 and action == glfw.PRESS:
-            self.toggle_fullscreen()
-        # ## DEBUG USER INPUT TO CHANGE GIFS
-        ## CURRENTLY BROKEN AND NEED TO UPDATE FUNCTION 'update_active_gif()'
-        # if key == glfw.KEY_SPACE and action == glfw.PRESS: 
-        #     self.restart_gif()
-        #     self.active_gif_index = (self.active_gif_index+1)%len(self.gif_textures)
-        #     self.active_gif = self.gif_textures[self.active_gif_index]
         
     #################################################################################
     ###################### OPENGL, SETUP AND LOADING FUNCTIONS ######################
@@ -241,9 +275,6 @@ class GifPlayer:
                 sys.exit(1)
             # Attach the OpenGL context to the window
             glfw.make_context_current(window)
-            # impl_imgui = GlfwRenderer(window)
-            glfw.set_framebuffer_size_callback(window, self.framebuffer_size_callback)
-            glfw.set_key_callback(window, self.key_callback)
             gl.glViewport(0, 0, window_width, window_height)
             gl.glClearColor(0.0, 0.0, 0.0, 1.0)
             
@@ -256,7 +287,7 @@ class GifPlayer:
             return (window, window_width, window_height, monitors)
     
     def set_context(self):
-        glfw.make_context_current(self.window)
+        # glfw.make_context_current(self.window)
         impl_imgui = GlfwRenderer(self.window)
         glfw.set_framebuffer_size_callback(self.window, self.framebuffer_size_callback)
         glfw.set_key_callback(self.window, self.key_callback)
@@ -271,7 +302,78 @@ class GifPlayer:
         self.gif_textures = self.load_all_textures(gifs_data)
         self.vao = self.create_vertex_array_object()
         self.vbo, self.ebo = self.create_vertex_buffer()
+        self.pbos, self.vid_textures = self.vids_init()
         self.program_id, self.shader_ids = self.load_shaders()
+
+    def get_pbos_for_size(self, width, height):
+        size = (width, height)
+        if size not in self.pbos:
+            # If we don't have PBOs for this size yet, create them
+            pbo1 = self.create_pbo(width, height)
+            pbo2 = self.create_pbo(width, height)
+            self.pbos[size] = (pbo1, pbo2)
+        return self.pbos[size]
+
+    def get_textures_for_size(self, width, height):
+        size = (width, height)
+        if size not in self.vid_textures:
+            # If we don't have textures for this size yet, create them
+            tex1 = gl.glGenTextures(1)
+            tex2 = gl.glGenTextures(1)
+            for tex in [tex1, tex2]:
+                gl.glBindTexture(gl.GL_TEXTURE_2D, tex)
+                gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_BORDER)
+                gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_BORDER)
+                gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+                gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+                gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, width, height, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+                gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
+            self.vid_textures[size] = (tex1, tex2)
+        return self.vid_textures[size]
+
+    def create_pbo(self, width, height):
+        pbo = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, pbo)
+        gl.glBufferData(gl.GL_PIXEL_UNPACK_BUFFER, width * height * 4, None, gl.GL_STREAM_DRAW)
+        return pbo
+    
+    def vids_init(self):
+        self.pbos = {}
+        self.vid_textures = {}
+        file_names = sorted(os.listdir(self.vids_path), key=lambda name: int(name[4:-4]))
+        for file_name in file_names:
+            if file_name.endswith('.mp4'):
+                vid_path = os.path.join(self.vids_path, file_name)
+                cap = cv2.VideoCapture(vid_path)
+                if cap.isOpened():
+                    # Get the width and height of the video
+                    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                    # Create PBOs for this video size
+                    self.get_pbos_for_size(width, height)
+                    self.get_textures_for_size(width, height)
+                cap.release()
+        return self.pbos, self.vid_textures
+
+    def load_gifs(self):
+        # Using PILLOW to load the gifs and convert them to byte format, to be used by OpenGL.
+        gifs = []
+        file_names = sorted(os.listdir(self.gifs_path), key=lambda name: int(name.lstrip("gif-").rstrip(".gif")))
+        for file_name in file_names:
+            if file_name.endswith('.gif') or file_name.endswith('.GIF'):
+                gif_path = os.path.join(self.gifs_path, file_name)
+                with Image.open(gif_path) as im:
+                    frames = []
+                    for frame in ImageSequence.Iterator(im):
+                        frame_rgb = frame.convert("RGB")
+                        image_bytes = frame_rgb.tobytes("raw", "RGBX", 0, -1)
+                        width, height = frame.size
+                        dur = frame.info['duration']
+                        frame_data = (image_bytes, width, height, dur)
+                        frames.append(frame_data)
+                    gifs.append(frames)
+        return gifs
 
     def create_vertex_array_object(self):
         # The vertex buffer object has to be attached to a VAO to be rendered.
@@ -363,26 +465,6 @@ class GifPlayer:
         
         gl.glUseProgram(program_id)
         return program_id, shader_ids
-            
-    def load_gifs(self):
-        # Using PILLOW to load the gifs and convert them to byte format, to be used by OpenGL.
-
-        gifs = []
-        file_names = sorted(os.listdir(self.gifs_path), key=lambda name: int(name.lstrip("gif-").rstrip(".gif")))
-        for file_name in file_names:
-            if file_name.endswith('.gif') or file_name.endswith('.GIF'):
-                gif_path = os.path.join(self.gifs_path, file_name)
-                with Image.open(gif_path) as im:
-                    frames = []
-                    for frame in ImageSequence.Iterator(im):
-                        frame_rgb = frame.convert("RGB")
-                        image_bytes = frame_rgb.tobytes("raw", "RGBX", 0, -1)
-                        width, height = frame.size
-                        dur = frame.info['duration']
-                        frame_data = (image_bytes, width, height, dur)
-                        frames.append(frame_data)
-                    gifs.append(frames)
-        return gifs
     
     def make_texture_from_frame(self, frame_data):
         image_bytes, w, h, dur = frame_data
@@ -394,12 +476,14 @@ class GifPlayer:
         # Set the texture parameters
         gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_BORDER)
         gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_BORDER)
-        gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR_MIPMAP_LINEAR)
+        gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
         gl.glTexParameter(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
 
         # Assign an image to the texture and generate the mip map
         gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGB, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, image_bytes)
         gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
+        
+        gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
 
         return tex, w, h, dur
 
@@ -431,6 +515,23 @@ class GifPlayer:
         safe_execute(gl.glDeleteProgram, self.program_id)
         safe_execute(glfw.terminate)
         self.glfw_initiliazed = False
+
+    def framebuffer_size_callback(self, window, width, height):
+        gl.glViewport(0, 0, width, height)
+        self.window_width = width
+        self.window_height = height
+
+    def key_callback(self, window, key, scancode, action, mods):
+        if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
+            self.show_settings = not self.show_settings
+        if key == glfw.KEY_F11 and action == glfw.PRESS:
+            self.toggle_fullscreen()
+        # ## DEBUG USER INPUT TO CHANGE GIFS
+        ## CURRENTLY BROKEN AND NEED TO UPDATE FUNCTION 'update_active_gif()'
+        # if key == glfw.KEY_SPACE and action == glfw.PRESS: 
+        #     self.restart_gif()
+        #     self.active_gif_index = (self.active_gif_index+1)%len(self.gif_textures)
+        #     self.active_gif = self.gif_textures[self.active_gif_index]
 
 def safe_execute(func, *args):
     try:
