@@ -17,6 +17,8 @@ LED_MATRIX_PATH = '/dev/tty.usbmodem2101'
 ARUDUINO_PATH = '/dev/tty.usbmodem2201'
 JSON_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/country_tracks.json'
 DELAY = 5
+GIFS_PATH = 'installation-application/data/gifs'
+VIDS_PATH = 'installation-application/data/vids'
 
 class MainProgram: 
     def __init__(self, CSV_path = CSV_PATH, num_vectors = NUMBER_OF_VECTORS, pure_data_path = PURE_DATA_PATH, embeddings_path = EMBEDDINGS_PATH, led_matrix_path = LED_MATRIX_PATH, arduino_path = ARUDUINO_PATH, json_path = JSON_PATH, delay = DELAY): 
@@ -31,7 +33,7 @@ class MainProgram:
             self.arduino = serial_com.SerialCommunication(arduino_path)
             self.arduino.connect_serial()
             self.ding_model = ding.DingModel(self.arduino, json_path)
-            self.media_player = media_player.MediaPlayer()
+            self.media_player = media_player.MediaPlayer(GIFS_PATH, VIDS_PATH)
             self.media_player.start_on_new_process()
         except Exception as e:
             print(f'Error initialising main program! {e}')
