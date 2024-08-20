@@ -14,14 +14,14 @@ CSV_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-
 PURE_DATA_PATH = '/Users/erika/Documents/GitHub/data-sonification/semantic_synth(with-effects).pd'
 EMBEDDINGS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/data/input/tate_wellcome_SEA_text_embeddings.npy'
 LED_MATRIX_PATH = '/dev/tty.usbmodem2101'
-ARUDUINO_PATH = '/dev/tty.usbmodem2201'
+ARDUINO_PATH = '/dev/tty.usbmodem2201'
 JSON_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/country_tracks.json'
-DELAY = 5
-GIFS_PATH = 'installation-application/data/gifs'
-VIDS_PATH = 'installation-application/data/vids'
+DELAY = 1
+GIFS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/gifs/'
+VIDS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/vids/'
 
 class MainProgram: 
-    def __init__(self, CSV_path = CSV_PATH, num_vectors = NUMBER_OF_VECTORS, pure_data_path = PURE_DATA_PATH, embeddings_path = EMBEDDINGS_PATH, led_matrix_path = LED_MATRIX_PATH, arduino_path = ARUDUINO_PATH, json_path = JSON_PATH, delay = DELAY): 
+    def __init__(self, CSV_path = CSV_PATH, num_vectors = NUMBER_OF_VECTORS, pure_data_path = PURE_DATA_PATH, embeddings_path = EMBEDDINGS_PATH, led_matrix_path = LED_MATRIX_PATH, arduino_path = ARDUINO_PATH, json_path = JSON_PATH, delay = DELAY): 
         try:  
             self.delay = delay
             self.positive_client = semantic_client.SemanticClient("127.0.0.1", 9000)
@@ -59,7 +59,9 @@ class MainProgram:
 
                     if pd.notnull(row['Keywords']): self.LED_matrix.send_serial(row['Keywords'])
             
-                    self.media_player.queue_media(row['Gifs'])
+                    if pd.notnull(row['Media']): 
+                        self.media_player.queue_media(row['Media']) 
+                        print(f'found media {row["Media"]}')
 
                     self.semantic_model(row['Label'], vectors)
 
