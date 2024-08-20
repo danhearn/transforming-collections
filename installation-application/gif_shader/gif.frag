@@ -19,16 +19,11 @@ void main(){
         scale.x = tex_h / tex_w * window_ratio;
     } else if (tex_ratio > window_ratio) {
         scale.y = tex_w / tex_h / window_ratio;
-    } else { // square gifs
-        if (window_ratio < 1.0) {
-            scale.y = 1.0 / window_ratio;
-        } else {
-            scale.x = window_ratio;
-        }
     }
 
     uv *= scale;
     uv += (1.0 - scale) / 2.0;
 
-    fragColor = texture(gifTexture, uv);
+    vec4 color = texture(gifTexture, uv);
+    fragColor = color;
 }
