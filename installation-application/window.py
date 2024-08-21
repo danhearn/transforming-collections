@@ -85,4 +85,4 @@ class Window:
     
     def terminate(self):
         safe_execute(glfw.terminate(), 0)
-        print("Window terminated")
+        print("Window terminated.")
