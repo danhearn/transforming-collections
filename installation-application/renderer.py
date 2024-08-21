@@ -11,7 +11,6 @@ class Renderer:
     def __init__(self, window):
         self.window = window
         self._imgui = window._imgui 
-        # self.gui = GlfwRenderer(self.window) 
         self.vao = self.create_vertex_array_object()
         self.vbo, self.ebo = self.create_vertex_buffer()
         self.pbos = {}
@@ -20,9 +19,10 @@ class Renderer:
         self.show_settings = True
         self.current_time = 0
         self.frame_times = []
+        self.current_texture = None
 
     def draw(self, media):
-        # self.clear()
+        self.clear()
         if media is not None:
             self.set_uniforms(media)
             self.set_texture(media)
@@ -63,13 +63,12 @@ class Renderer:
 
     def set_texture(self, media):
         if type(media) is Gif:
-            tex = self.get_textures_from_UUID(media.texture_UUID)[0]
+            tex = self.get_textures_from_UUID(media.texture_UUID)
             self.bind_texture(tex)
             self.tex_image_2D(media.size, media._frame_data)
-            # self.unbind_texture()
 
         elif type(media) is Video and media._frame_data is not None:
-            texs = self.get_textures_from_UUID(media.texture_UUID)
+            tex = self.get_textures_from_UUID(media.texture_UUID)
             pbos = self.get_pbos_from_UUID(media.pbo_UUID)
             size = media.size[0]*media.size[1]*4
 
@@ -79,9 +78,8 @@ class Renderer:
             t = self.window.time()
             self.bind_pbo(pbos[index])
             self.set_pbo_data_ptr(media._frame_data, size)
-            self.bind_texture(texs[0])
+            self.bind_texture(tex)
             self.tex_sub_image_2D(media.size)
-
             self.unbind_pbo()
             # self.unbind_texture()
             # print(self.fps())
@@ -100,18 +98,16 @@ class Renderer:
         average_fps = len(self.frame_times) / sum(dt for t, dt in self.frame_times) if self.frame_times else 0
         return average_fps
     
-    def create_textures(self, UUID, size, num_textures):
+    def create_textures(self, UUID, size, is_video):
         if self.textures.get(UUID) is None:
-            textures = []
-            for _ in range(num_textures):
-                tex = self.gen_textures(1)
-                self.bind_texture(tex)
-                self.set_tex_params()
+            tex = self.gen_textures(1)
+            self.bind_texture(tex)
+            self.set_tex_params()
+            if is_video:
                 self.tex_image_2D(size, bytes=None)
-                self.generate_mipmaps()
-                self.unbind_texture()
-                textures.append(tex)
-            self.textures[UUID] = textures
+            # self.generate_mipmaps()
+            self.unbind_texture()
+            self.textures[UUID] = tex
         return
     
     def create_pbos(self, UUID, size, num_pbos):
@@ -251,7 +247,9 @@ class Renderer:
         gl.glBindBuffer(gl.GL_PIXEL_UNPACK_BUFFER, 0)
 
     def bind_texture(self, texture):
-        gl.glBindTexture(gl.GL_TEXTURE_2D, texture)
+        if self.current_texture is not texture:
+            gl.glBindTexture(gl.GL_TEXTURE_2D, texture)
+            self.current_texture = texture
 
     def unbind_texture(self):
         gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
@@ -260,7 +258,6 @@ class Renderer:
         ptr = gl.glMapBufferRange(gl.GL_PIXEL_UNPACK_BUFFER, 0, size, gl.GL_MAP_WRITE_BIT | gl.GL_MAP_INVALIDATE_BUFFER_BIT)#| gl.GL_MAP_FLUSH_EXPLICIT_BIT | gl.GL_MAP_UNSYNCHRONIZED_BIT)
         ctypes.memmove(ptr, data, len(data))
         gl.glUnmapBuffer(gl.GL_PIXEL_UNPACK_BUFFER)
-        # gl.glFlushMappedBufferRange(gl.GL_PIXEL_UNPACK_BUFFER, 0, size)
     
     def clear(self, color=None):
         if color is not None:
