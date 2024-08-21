@@ -10,7 +10,7 @@ import glfw
 import random
 
 class MediaPlayer:
-    def __init__(self, gifs_path, vids_path):
+    def __init__(self, gifs_path, vids_path, fullscreen=True):
         self.gifs_path = Path(gifs_path)
         self.vids_path = Path(vids_path)
         self.queue = Queue()
@@ -21,10 +21,12 @@ class MediaPlayer:
         self.current_time = 0
         self.last_update_time = -1
 
+        self.fullscreen = fullscreen
+
     def run(self):
         # Initialize the renderer and media for playing. 
         # Happens in run so that the player can run on a separate process from the main program.
-        self.window = Window(800, 600, "MEDIA PLAYER")
+        self.window = Window(800, 600, "MEDIA PLAYER", self.fullscreen)
         self.renderer = Renderer(window=self.window)
         self.media = self.load_media()
         # Main loop
