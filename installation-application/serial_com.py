@@ -3,7 +3,7 @@ import serial
 
 class SerialCommunication:
     def __init__(self, device_path):
-        self.device_path = device_path
+        self.device_path = str(device_path)
         self.baud_rate = 9600
         self.ser = None
         self.serial_connected = False
