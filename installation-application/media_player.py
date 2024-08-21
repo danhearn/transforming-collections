@@ -2,7 +2,6 @@ from window import Window
 from renderer import Renderer
 from media import Video, Gif
 from multiprocessing import Process, Queue
-from os import listdir
 import uuid
 import sys
 from pathlib import Path
