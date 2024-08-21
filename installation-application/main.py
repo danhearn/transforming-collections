@@ -35,7 +35,7 @@ class MainProgram:
             self.arduino = serial_com.SerialCommunication(arduino_path)
             self.arduino.connect_serial()
             self.ding_model = ding.DingModel(self.arduino, json_path, base_path=BASE_PATH)
-            self.media_player = media_player.MediaPlayer(GIFS_PATH, VIDS_PATH)
+            self.media_player = media_player.MediaPlayer(GIFS_PATH, VIDS_PATH, fullscreen=False)
             self.media_player.start_on_new_process()
         except Exception as e:
             print(f'Error initialising main program! {e}')
