@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
+from pathlib import Path
 
 import subprocess
 
@@ -16,11 +17,13 @@ class SemanticModel:
         self.pure_data = subprocess.Popen([self.pd_executable, "-nogui", pure_data_path])
         self.bert = np.load(embeddings_path)
         self.vector_length = vector_length
-    
+        
+        
     def find_pd_executable(self):
         pd_apps = glob.glob('/Applications/Pd-*.app/Contents/Resources/bin/pd')
         
         if pd_apps:
+            Path(pd_apps[0])
             return pd_apps[0]
         
         return None

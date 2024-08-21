@@ -5,14 +5,15 @@ from multiprocessing import Process, Queue
 from os import listdir
 import uuid
 import sys
+from pathlib import Path
 
 import glfw
 import random
 
 class MediaPlayer:
     def __init__(self, gifs_path, vids_path):
-        self.gifs_path = gifs_path
-        self.vids_path = vids_path
+        self.gifs_path = Path(gifs_path)
+        self.vids_path = Path(gifs_path)
         self.queue = Queue()
         self.renderer = None
         self.media = {}
@@ -96,13 +97,13 @@ class MediaPlayer:
     def load_media(self):
         media = {}
 
-        for gif in listdir(self.gifs_path):
-            gif = Gif(self.gifs_path + gif)
+        for gif in self.gifs_path.iterdir():
+            gif = Gif(gif)
             gif.texture_UUID = self.get_texture_UUID_for_media(gif)
             media[gif.ID] = gif
         
-        for vid in listdir(self.vids_path):
-            vid = Video(self.vids_path + vid)
+        for vid in self.vids_path.iterdir():
+            vid = Video(vid)
             vid.texture_UUID = self.get_texture_UUID_for_media(vid)
             vid.pbo_UUID = self.get_pbo_UUID_for_video(vid)
             media[vid.ID] = vid

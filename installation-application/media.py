@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from PIL import Image, ImageSequence
+from pathlib import Path
 import cv2
 
 class Media(ABC):
     def __init__(self, path):
-        self.path = path
-        self.ID = path.split('/')[-1].split('.')[0]
+        self.path = Path(path)
+        self.ID = self.path.stem
 
         self._frame = 0
         self._frame_data = None

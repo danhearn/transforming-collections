@@ -12,8 +12,8 @@ import media_player
 
 BASE_PATH = Path.cwd()
 NUMBER_OF_VECTORS = 4
-CSV_PATH = BASE_PATH/'system-dataset-gif-test.csv'
-PURE_DATA_PATH = BASE_PATH/'../pure-data/semantic_synth(with-effects).pd'
+CSV_PATH = BASE_PATH/'data/system-dataset-gif-test.csv'
+PURE_DATA_PATH = BASE_PATH/'pure_data/semantic_synth(with-effects).pd'
 EMBEDDINGS_PATH = BASE_PATH/'data/tate_wellcome_SEA_text_embeddings.npy'
 LED_MATRIX_PATH = Path('/dev/tty.usbmodem2101')
 ARDUINO_PATH = Path('/dev/tty.usbmodem2201')
@@ -35,7 +35,7 @@ class MainProgram:
             self.arduino = serial_com.SerialCommunication(arduino_path)
             self.arduino.connect_serial()
             self.ding_model = ding.DingModel(self.arduino, json_path, base_path=BASE_PATH)
-            self.media_player = media_player.MediaPlayer(gifs_path=GIFS_PATH, vids_path=VIDS_PATH)
+            self.media_player = media_player.MediaPlayer(GIFS_PATH, VIDS_PATH)
             self.media_player.start_on_new_process()
         except Exception as e:
             print(f'Error initialising main program! {e}')
@@ -64,7 +64,7 @@ class MainProgram:
                     if pd.notnull(row['Media']): 
                         self.media_player.queue_media(row['Media']) 
                         print(f'found media {row["Media"]}')
-
+    
                     self.semantic_model(row['Label'], vectors)
 
                     if isinstance(row['Countries'], list) and len(row['Countries']) > 0: self.ding_model.run(row['Countries'])
