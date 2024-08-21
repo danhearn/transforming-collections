@@ -13,7 +13,7 @@ import media_player
 BASE_PATH = Path.cwd()
 NUMBER_OF_VECTORS = 4
 CSV_PATH = BASE_PATH/'data/system-dataset-gif-test.csv'
-PURE_DATA_PATH = BASE_PATH/'pure_data/semantic_synth(with-effects).pd'
+PURE_DATA_PATH = BASE_PATH/'pure-data/TateSemanticSoundNew.pd'
 EMBEDDINGS_PATH = BASE_PATH/'data/tate_wellcome_SEA_text_embeddings.npy'
 LED_MATRIX_PATH = Path('/dev/tty.usbmodem2101')
 ARDUINO_PATH = Path('/dev/tty.usbmodem2201')
