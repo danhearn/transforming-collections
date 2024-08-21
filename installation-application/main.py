@@ -1,6 +1,7 @@
 from multiprocessing import Process, Queue
 from time import sleep
 import pandas as pd
+from pathlib import Path
 
 import data_processor
 import semantic_init
@@ -9,16 +10,17 @@ import serial_com
 import ding
 import media_player
 
+BASE_PATH = Path.cwd()
 NUMBER_OF_VECTORS = 4
-CSV_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/system-dataset-gif-test.csv'
-PURE_DATA_PATH = '/Users/erika/Documents/GitHub/data-sonification/semantic_synth(with-effects).pd'
-EMBEDDINGS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/data/input/tate_wellcome_SEA_text_embeddings.npy'
-LED_MATRIX_PATH = '/dev/tty.usbmodem2101'
-ARDUINO_PATH = '/dev/tty.usbmodem2201'
-JSON_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/country_tracks.json'
+CSV_PATH = BASE_PATH/'data/system-dataset-gif-test.csv'
+PURE_DATA_PATH = BASE_PATH/'pure_data/semantic_synth(with-effects).pd'
+EMBEDDINGS_PATH = BASE_PATH/'data/tate_wellcome_SEA_text_embeddings.npy'
+LED_MATRIX_PATH = Path('/dev/tty.usbmodem2101')
+ARDUINO_PATH = Path('/dev/tty.usbmodem2201')
+JSON_PATH = BASE_PATH/'data/country_tracks.json'
 DELAY = 1
-GIFS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/gifs/'
-VIDS_PATH = '/Users/erika/Documents/GitHub/transforming-collections/installation-application/data/vids/'
+GIFS_PATH = BASE_PATH/'data/gifs/'
+VIDS_PATH = BASE_PATH/'data/vids/'
 
 class MainProgram: 
     def __init__(self, CSV_path = CSV_PATH, num_vectors = NUMBER_OF_VECTORS, pure_data_path = PURE_DATA_PATH, embeddings_path = EMBEDDINGS_PATH, led_matrix_path = LED_MATRIX_PATH, arduino_path = ARDUINO_PATH, json_path = JSON_PATH, delay = DELAY): 
@@ -32,8 +34,8 @@ class MainProgram:
             self.LED_matrix.connect_serial()
             self.arduino = serial_com.SerialCommunication(arduino_path)
             self.arduino.connect_serial()
-            self.ding_model = ding.DingModel(self.arduino, json_path)
-            self.media_player = media_player.MediaPlayer(GIFS_PATH, VIDS_PATH)
+            self.ding_model = ding.DingModel(self.arduino, json_path, base_path=BASE_PATH)
+            self.media_player = media_player.MediaPlayer(GIFS_PATH, VIDS_PATH, fullscreen=False)
             self.media_player.start_on_new_process()
         except Exception as e:
             print(f'Error initialising main program! {e}')
@@ -62,7 +64,7 @@ class MainProgram:
                     if pd.notnull(row['Media']): 
                         self.media_player.queue_media(row['Media']) 
                         print(f'found media {row["Media"]}')
-
+    
                     self.semantic_model(row['Label'], vectors)
 
                     if isinstance(row['Countries'], list) and len(row['Countries']) > 0: self.ding_model.run(row['Countries'])

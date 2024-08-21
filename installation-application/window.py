@@ -6,14 +6,14 @@ from imgui.integrations.glfw import GlfwRenderer
 import sys
 
 class Window:
-    def __init__(self, width="480", height="640", title="MEDIA PLAYER"):
+    def __init__(self, width="480", height="640", title="MEDIA PLAYER", fullscreen=True):
         self.title = title
         self.width = width
         self.height = height
         self.monitors = None
         self.monitor_choice = 0
         self.show_settings = False
-        self.is_fullscreen = False
+        self.is_fullscreen = fullscreen
         imgui.create_context()
         self.window, self.monitors, self._imgui = self.impl_glfw_init()
 
@@ -27,7 +27,13 @@ class Window:
             glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, True)
 
             monitors = glfw.get_monitors()
-            window = glfw.create_window(self.width, self.height, self.title, None, None)
+            if self.is_fullscreen:
+                mode = glfw.get_video_mode(monitors[self.monitor_choice])
+                self.width = mode.size.width
+                self.height = mode.size.height
+                window = glfw.create_window(self.width, self.height, self.title, monitors[self.monitor_choice], None)
+            else:
+                window = glfw.create_window(self.width, self.height, self.title, None, None)
 
             if not window:
                 glfw.terminate()
@@ -85,4 +91,4 @@ class Window:
     
     def terminate(self):
         safe_execute(glfw.terminate(), 0)
-        print("Window terminated")
+        print("Window terminated.")

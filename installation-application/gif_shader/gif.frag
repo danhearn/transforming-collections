@@ -2,7 +2,7 @@
 out vec4 fragColor;
 
 in vec2 fragUV;
-uniform sampler2D gifTexture;
+uniform sampler2D media_texture;
 uniform float tex_w;
 uniform float tex_h;
 uniform float window_w;
@@ -24,6 +24,6 @@ void main(){
     uv *= scale;
     uv += (1.0 - scale) / 2.0;
 
-    vec4 color = texture(gifTexture, uv);
+    vec4 color = texture(media_texture, uv);
     fragColor = color;
 }

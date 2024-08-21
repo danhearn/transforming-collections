@@ -1,12 +1,14 @@
 import random
 import json 
+from pathlib import Path
 from mido import MidiFile
 
 class DingModel:
-    def __init__(self, arduino, json_path):
+    def __init__(self, arduino, json_path, base_path):
         self.arduino = arduino
         with open(json_path) as json_file:
             self.country_tracks = json.load(json_file)
+        self.base_path = base_path
     
     def read_midi(self, midi_file):
         for msg in midi_file.play():
@@ -17,12 +19,12 @@ class DingModel:
     def track_selector(self, country, num_of_tracks):
         if num_of_tracks == 2:
             r = random.random()
-            if r < 0.5:
-                self.read_midi(MidiFile(self.country_tracks[f'{country}']['track1']))
-            else:
-                self.read_midi(MidiFile(self.country_tracks[f'{country}']['track2']))
+            track_key = 'track1' if r < 0.5 else 'track2'
         else:
-            self.read_midi(MidiFile(self.country_tracks[f'{country}']['track1']))
+            track_key = 'track1'
+
+        midi_path = self.base_path / self.country_tracks[country][track_key]
+        self.read_midi(MidiFile(str(midi_path)))
     
     def run(self, countries):
         for i in countries:
