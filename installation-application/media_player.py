@@ -12,7 +12,7 @@ import random
 class MediaPlayer:
     def __init__(self, gifs_path, vids_path):
         self.gifs_path = Path(gifs_path)
-        self.vids_path = Path(gifs_path)
+        self.vids_path = Path(vids_path)
         self.queue = Queue()
         self.renderer = None
         self.media = {}
@@ -95,26 +95,25 @@ class MediaPlayer:
 
     def load_media(self):
         media = {}
-
+        print("Loading visuals...")
         for gif in self.gifs_path.iterdir():
             gif = Gif(gif)
             gif.texture_UUID = self.get_texture_UUID_for_media(gif)
             media[gif.ID] = gif
-        
         for vid in self.vids_path.iterdir():
             vid = Video(vid)
             vid.texture_UUID = self.get_texture_UUID_for_media(vid)
             vid.pbo_UUID = self.get_pbo_UUID_for_video(vid)
             media[vid.ID] = vid
-
+        print("Visuals loaded.")
         return media
     
     def get_texture_UUID_for_media(self, media):
         if media.texture_UUID is None:
             size = media.size
-            num_textures = 2 if isinstance(media, Video) else 1
-            UUID = str(uuid.uuid5(uuid.NAMESPACE_DNS, f'{type(media).__name__}{size}{num_textures}'))
-            self.renderer.create_textures(UUID, size, num_textures)
+            is_video = True if isinstance(media, Video) else False
+            UUID = str(uuid.uuid5(uuid.NAMESPACE_DNS, f'{type(media).__name__}{size}{is_video}'))
+            self.renderer.create_textures(UUID, size, is_video)
             return UUID
         return media.texture_UUID
     
