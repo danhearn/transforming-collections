@@ -5,7 +5,7 @@ from main import MainProgram
 
 class TestMainProgramRun(unittest.TestCase):
 
-    @patch('main.sleep', return_value=None)  # Mock sleep to speed up the test
+    @patch('main.sleep', side_effect=KeyboardInterrupt)  # Mock sleep to simulate Ctrl+C (KeyboardInterrupt)
     @patch('main.DataProcessor.get_random_row')
     @patch('main.SerialCommunication')
     def test_run_single_row(self, MockSerialCommunication, MockGetRandomRow, MockSleep):
@@ -32,14 +32,10 @@ class TestMainProgramRun(unittest.TestCase):
         program.media_player.queue_media = MagicMock()
         program.ding_model.run = MagicMock()
 
-        # Simulate the loop to process a single row
-        program.run_once = True  # Custom attribute to control loop
         try:
-            while program.run_once:
-                program.run_once = False
-                program.run()  # Run one iteration
-        except StopIteration:
-            pass
+            program.run()  # Run the program
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt caught successfully.")
 
         # Assertions to check if methods were called with expected values
         mock_serial_instance.send_serial.assert_called_once_with('Keyword1')
