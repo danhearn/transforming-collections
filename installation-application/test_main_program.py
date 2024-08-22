@@ -48,5 +48,7 @@ class TestMainProgram(unittest.TestCase):
         MockMediaPlayer.assert_called_once_with(GIFS_PATH, VIDS_PATH, fullscreen=False)
         MockMediaPlayer().start_on_new_process.assert_called()
 
+    
+
 if __name__ == '__main__':
     unittest.main()
