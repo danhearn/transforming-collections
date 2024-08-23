@@ -15,11 +15,11 @@ class Renderer:
         self.vbo, self.ebo = self.create_vertex_buffer()
         self.pbos = {}
         self.textures = {}
+        self.current_texture = None
         self.program_id, self.shader_ids = self.load_shaders()
         self.show_settings = True
         self.current_time = 0
         self.frame_times = []
-        self.current_texture = None
 
     def draw(self, media):
         self.clear()
@@ -62,27 +62,20 @@ class Renderer:
         gl.glUniform1f(gl.glGetUniformLocation(self.program_id, name), value)
 
     def set_texture(self, media):
+        gl.glActiveTexture(gl.GL_TEXTURE0)
+        tex = self.get_textures_from_UUID(media.texture_UUID)
+        self.bind_texture(tex)
         if type(media) is Gif:
-            tex = self.get_textures_from_UUID(media.texture_UUID)
-            self.bind_texture(tex)
-            self.tex_image_2D(media.size, media._frame_data)
-
+            self.tex_image_2D(media.size, media._frame_data, is_video=False)
         elif type(media) is Video and media._frame_data is not None:
-            tex = self.get_textures_from_UUID(media.texture_UUID)
             pbos = self.get_pbos_from_UUID(media.pbo_UUID)
             size = media.size[0]*media.size[1]*4
-
             index = media._buffer_index = (media._buffer_index + 1) % 2
-            next_index = (index + 1) % 2
-            
-            t = self.window.time()
+            # next_index = (index + 1) % 2
             self.bind_pbo(pbos[index])
             self.set_pbo_data_ptr(media._frame_data, size)
-            self.bind_texture(tex)
             self.tex_sub_image_2D(media.size)
             self.unbind_pbo()
-            # self.unbind_texture()
-            # print(self.fps())
 
     def fps(self):
         # Calculate the frames per second.
@@ -104,8 +97,7 @@ class Renderer:
             self.bind_texture(tex)
             self.set_tex_params()
             if is_video:
-                self.tex_image_2D(size, bytes=None)
-            # self.generate_mipmaps()
+                self.tex_image_2D(size, bytes=None, is_video=True)
             self.unbind_texture()
             self.textures[UUID] = tex
         return
@@ -218,11 +210,14 @@ class Renderer:
         gl.glUseProgram(program_id)
         return program_id, shader_ids
     
-    def tex_image_2D(self, size, bytes=None):
-        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, size[0], size[1], 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, bytes)
+    def tex_image_2D(self, size, bytes=None, is_video=False):
+        if is_video:
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, size[0], size[1], 0, gl.GL_BGR, gl.GL_UNSIGNED_BYTE, bytes)
+        else:
+            gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, size[0], size[1], 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, bytes)
 
     def tex_sub_image_2D(self, size):
-        gl.glTexSubImage2D(gl.GL_TEXTURE_2D, 0, 0, 0, size[0], size[1], gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+        gl.glTexSubImage2D(gl.GL_TEXTURE_2D, 0, 0, 0, size[0], size[1], gl.GL_BGR, gl.GL_UNSIGNED_BYTE, None)
 
     def generate_mipmaps(self):
         gl.glGenerateMipmap(gl.GL_TEXTURE_2D)

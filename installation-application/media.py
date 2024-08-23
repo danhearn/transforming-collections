@@ -122,7 +122,6 @@ class Video(Media):
             # Read the next frame
             ret, frame = self.capture.read()
             if ret:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
                 self._frame_data = frame.data.tobytes()
     
     def open(self):

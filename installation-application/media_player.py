@@ -4,6 +4,7 @@ from media import Video, Gif
 from multiprocessing import Process, Queue
 import uuid
 import sys
+import time
 from pathlib import Path
 
 import glfw
@@ -114,7 +115,7 @@ class MediaPlayer:
         if media.texture_UUID is None:
             size = media.size
             is_video = True if isinstance(media, Video) else False
-            UUID = str(uuid.uuid5(uuid.NAMESPACE_DNS, f'{type(media).__name__}{size}{is_video}'))
+            UUID = str(uuid.uuid5(uuid.NAMESPACE_DNS, f'{type(media).__name__}{size}'))
             self.renderer.create_textures(UUID, size, is_video)
             return UUID
         return media.texture_UUID
@@ -136,6 +137,6 @@ class MediaPlayer:
 if __name__ == "__main__":
     GIFS_PATH  = "./data/gifs/"
     VIDS_PATH = "./data/vids/"
-    mp = MediaPlayer(GIFS_PATH, VIDS_PATH)
+    mp = MediaPlayer(GIFS_PATH, VIDS_PATH, fullscreen=False)
     mp.start_on_new_process()
-    mp.queue_media("vid-10")
+    mp.queue_media("gif-20")
