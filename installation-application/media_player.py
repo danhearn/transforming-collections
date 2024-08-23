@@ -30,7 +30,6 @@ class MediaPlayer:
         self.window = Window(800, 600, "MEDIA PLAYER", self.fullscreen)
         self.renderer = Renderer(window=self.window)
         self.media = self.load_media()
-        # Main loop
         try:
             while not self.window.should_close():
                 self.window.update()
@@ -78,19 +77,15 @@ class MediaPlayer:
         self.prev_media = self.active_media
         self.active_media = self.get_media(ID)
         if self.active_media is not self.prev_media:
-            # print(f"Opening {self.active_media.ID}")
-            # t = self.window.time()
             self.active_media.open()
-            # print(f"Opened {self.active_media.ID} in {self.window.time() - t} seconds")            
             if self.prev_media is not None:
                 self.prev_media.close()
-                # print(f"Closed {self.prev_media.ID}")
 
     def check_queue(self):
         if not self.queue.empty():
             try:
                 message = self.queue.get_nowait()
-                # print(f"Received instruction to play: {message}")
+                print(f"Received instruction to play: {message}")
             except Exception as e:
                 raise e
             if message is not None:
@@ -139,4 +134,4 @@ if __name__ == "__main__":
     VIDS_PATH = "./data/vids/"
     mp = MediaPlayer(GIFS_PATH, VIDS_PATH, fullscreen=False)
     mp.start_on_new_process()
-    mp.queue_media("gif-20")
+    mp.queue_media("stock")
