@@ -28,6 +28,8 @@ class Window:
 
             monitors = glfw.get_monitors()
             if self.is_fullscreen:
+                if len(self.monitors) > 1
+                    self.monitor_choice = -1
                 mode = glfw.get_video_mode(monitors[self.monitor_choice])
                 self.width = mode.size.width
                 self.height = mode.size.height
