@@ -71,7 +71,6 @@ class Renderer:
             pbos = self.get_pbos_from_UUID(media.pbo_UUID)
             size = media.size[0]*media.size[1]*4
             index = media._buffer_index = (media._buffer_index + 1) % 2
-            # next_index = (index + 1) % 2
             self.bind_pbo(pbos[index])
             self.set_pbo_data_ptr(media._frame_data, size)
             self.tex_sub_image_2D(media.size)
@@ -249,6 +248,7 @@ class Renderer:
 
     def unbind_texture(self):
         gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
+        self.current_texture = None
 
     def set_pbo_data_ptr(self, data, size):
         ptr = gl.glMapBufferRange(gl.GL_PIXEL_UNPACK_BUFFER, 0, size, gl.GL_MAP_WRITE_BIT | gl.GL_MAP_INVALIDATE_BUFFER_BIT)#| gl.GL_MAP_FLUSH_EXPLICIT_BIT | gl.GL_MAP_UNSYNCHRONIZED_BIT)
