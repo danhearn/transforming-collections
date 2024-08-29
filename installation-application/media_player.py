@@ -4,11 +4,7 @@ from media import Video, Gif
 from multiprocessing import Process, Queue
 import uuid
 import sys
-import time
 from pathlib import Path
-
-import glfw
-import random
 
 class MediaPlayer:
     def __init__(self, gifs_path, vids_path, fullscreen=True):
