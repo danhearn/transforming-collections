@@ -116,10 +116,6 @@ class Video(Media):
     
     def go_to_next_frame(self):
         if self.capture is not None and self.capture.isOpened():
-            # Move the next frame data to the current frame data
-            # self._frame_data = self._next_frame_data
-
-            # Read the next frame
             ret, frame = self.capture.read()
             if ret:
                 self._frame_data = frame.data.tobytes()
@@ -127,7 +123,6 @@ class Video(Media):
     def open(self):
         if self.capture is None or not self.capture.isOpened():
             self.capture = cv2.VideoCapture(self.path)
-            self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 2)
         self.restart()
 
     def close(self):
