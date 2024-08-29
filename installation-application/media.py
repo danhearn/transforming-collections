@@ -116,13 +116,8 @@ class Video(Media):
     
     def go_to_next_frame(self):
         if self.capture is not None and self.capture.isOpened():
-            # Move the next frame data to the current frame data
-            # self._frame_data = self._next_frame_data
-
-            # Read the next frame
             ret, frame = self.capture.read()
             if ret:
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
                 self._frame_data = frame.data.tobytes()
     
     def open(self):
