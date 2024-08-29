@@ -4,7 +4,7 @@ from imgui.integrations.glfw import GlfwRenderer
 
 from media import Video, Gif
 
-import sys, os, ctypes
+import sys, ctypes
 import numpy as np
 
 class Renderer:
@@ -172,8 +172,8 @@ class Renderer:
         # This function loads, compiles and links the vertex and fragment shaders for the gif player.
 
         shaders = {
-            gl.GL_VERTEX_SHADER: self.load_shader_source("./gif_shader/gif.vert"),
-            gl.GL_FRAGMENT_SHADER: self.load_shader_source("./gif_shader/gif.frag")
+            gl.GL_VERTEX_SHADER: self.load_shader_source("./media_shader/media.vert"),
+            gl.GL_FRAGMENT_SHADER: self.load_shader_source("./media_shader/media.frag")
         }
 
         # Creates a shader program.
