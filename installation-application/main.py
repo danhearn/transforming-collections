@@ -2,67 +2,47 @@ from multiprocessing import Process, Queue
 from time import sleep
 import pandas as pd
 from pathlib import Path
+
+import data_processor
 import semantic_init
-import random
-from ast import literal_eval
+import semantic_client
+import serial_com
+import ding
+import media_player
 
-from data_processor import DataProcessor
-from semantic_init import SemanticModel
-from semantic_client import SemanticClient
-from serial_com import SerialCommunication
-from ding import DingModel
-from media_player import MediaPlayer
-
-# Define constants
 BASE_PATH = Path.cwd()
 NUMBER_OF_VECTORS = 4
-CSV_PATH = BASE_PATH / 'data/system-dataset[old-with-new-media].csv'
-PURE_DATA_PATH =  BASE_PATH / 'pure-data/TateSemanticSoundNew.pd'
-EMBEDDINGS_PATH = BASE_PATH / 'data/tate_wellcome_SEA_text_embeddings.npy'
+CSV_PATH = BASE_PATH/'data/system-dataset[old-with-new-media].csv'
+PURE_DATA_PATH = BASE_PATH/'pure-data/TateSemanticSoundNew.pd'
+EMBEDDINGS_PATH = BASE_PATH/'data/tate_wellcome_SEA_text_embeddings.npy'
 LED_MATRIX_PATH = Path('/dev/tty.usbmodem2101')
 ARDUINO_PATH = Path('/dev/tty.usbmodem2201')
-JSON_PATH = BASE_PATH / 'data/country_tracks.json'
+JSON_PATH = BASE_PATH/'data/country_tracks.json'
 DELAY = 1
-GIFS_PATH = BASE_PATH / 'data/gifs/'
-VIDS_PATH = BASE_PATH / 'data/vids/'
+GIFS_PATH = BASE_PATH/'data/gifs/'
+VIDS_PATH = BASE_PATH/'data/vids/'
 
 class MainProgram: 
-    def __init__(self, CSV_path=CSV_PATH, num_vectors=NUMBER_OF_VECTORS, pure_data_path=PURE_DATA_PATH, embeddings_path=EMBEDDINGS_PATH, led_matrix_path=LED_MATRIX_PATH, arduino_path=ARDUINO_PATH, json_path=JSON_PATH, delay=DELAY): 
+    def __init__(self, CSV_path = CSV_PATH, num_vectors = NUMBER_OF_VECTORS, pure_data_path = PURE_DATA_PATH, embeddings_path = EMBEDDINGS_PATH, led_matrix_path = LED_MATRIX_PATH, arduino_path = ARDUINO_PATH, json_path = JSON_PATH, delay = DELAY): 
         try:  
             self.delay = delay
-            
-            print("Initializing Semantic Clients...")
-            self.positive_client = SemanticClient("127.0.0.1", 9000)
-            self.negative_client = SemanticClient("127.0.0.1", 10000)
-            
-            print("Initializing Semantic Model...")
-            self.semantic_init = SemanticModel(pure_data_path, embeddings_path, num_vectors)
-            
-            print("Initializing Data Processor...")
-            self.data_processor = DataProcessor(CSV_path, self.semantic_init)
-            print("Data Processor initialized successfully.")
-            
-            print("Initializing Serial Communication with LED Matrix...")
-            self.LED_matrix = SerialCommunication(led_matrix_path)
+            self.positive_client = semantic_client.SemanticClient("127.0.0.1", 9000)
+            self.negative_client = semantic_client.SemanticClient("127.0.0.1", 10000)
+            self.semantic_init = semantic_init.SemanticModel(pure_data_path, embeddings_path, num_vectors)
+            self.data_processor = data_processor.DataProcessor(CSV_path, self.semantic_init)
+            self.LED_matrix = serial_com.SerialCommunication(led_matrix_path)
             self.LED_matrix.connect_serial()
-            
-            print("Initializing Serial Communication with Arduino...")
-            self.arduino = SerialCommunication(arduino_path)
+            self.arduino = serial_com.SerialCommunication(arduino_path)
             self.arduino.connect_serial()
-            
-            print("Initializing Ding Model...")
-            self.ding_model = DingModel(self.arduino, json_path, base_path=BASE_PATH)
-            
-            print("Initializing Media Player...")
-            self.media_player = MediaPlayer(GIFS_PATH, VIDS_PATH, fullscreen=False)
+            self.ding_model = ding.DingModel(self.arduino, json_path, base_path=BASE_PATH)
+            self.media_player = media_player.MediaPlayer(GIFS_PATH, VIDS_PATH, fullscreen=False)
             self.media_player.start_on_new_process()
         except Exception as e:
-            print(f'Error initializing main program! {e}')
-            raise  # Re-raise the exception to halt further execution if initialization fails
+            print(f'Error initialising main program! {e}')
 
     def semantic_model(self, label, vectors):
         if label == 1:
-            self.positive_client.send_vectors("/positive", vectors)
+            self.positive_client.send_vectors("/positve", vectors)
         else:
             self.negative_client.send_vectors("/negative", vectors)
 
@@ -79,23 +59,21 @@ class MainProgram:
                     vectors = [float(value) for value in row['Vectors']]
                     print(f"Processing index: {row.name}, Countries: {row['Countries']}, Keywords: {row['Keywords']}  Label and vectors: {[row['Label']] +  list(row['Vectors'])}")
 
-                    if pd.notnull(row['Keywords']):
-                        self.LED_matrix.send_serial(row['Keywords'])
+                    if pd.notnull(row['Keywords']): self.LED_matrix.send_serial(row['Keywords'])
             
                     if pd.notnull(row['Media']): 
                         self.media_player.queue_media(row['Media']) 
-                        print(f'Found media {row["Media"]}')
+                        print(f'found media {row["Media"]}')
     
                     self.semantic_model(row['Label'], vectors)
 
-                    if isinstance(row['Countries'], list) and len(row['Countries']) > 0:
-                        self.ding_model.run(row['Countries'])
+                    if isinstance(row['Countries'], list) and len(row['Countries']) > 0: self.ding_model.run(row['Countries'])
 
                     sleep(self.delay) 
                 except Exception as e:
                     print(f"Error processing row: {e}")
         except KeyboardInterrupt:
-            print('User ending program!')
+            print('user ending program!')
         except Exception as e:
             print(f'Error running main loop: {e}')
         finally:
