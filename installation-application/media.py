@@ -6,7 +6,7 @@ import cv2
 class Media(ABC):
     def __init__(self, path):
         self.path = Path(path)
-        self.ID = self.path.stem
+        self.ID = self.path.name
 
         self._frame = 0
         self._frame_data = None
