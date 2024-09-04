@@ -83,10 +83,12 @@ class MediaPlayer:
                 message = self.queue.get_nowait()
                 print(f"Received instruction to play: {message}")
             except Exception as e:
-                print("The media was not found in the dataset, or its name is invalid.")
                 raise e
-            if message is not None:
+            if message is not None and message in self.media:
                 self.update_active_media(message)
+            elif message is not None:
+                print("The media was not found in the dataset, or its name is invalid.")
+                print("Please check the name of the media you want to play.")
 
     def load_media(self):
         media = {}
@@ -131,4 +133,4 @@ if __name__ == "__main__":
     VIDS_PATH = "./data/vids/"
     mp = MediaPlayer(GIFS_PATH, VIDS_PATH, fullscreen=False)
     mp.start_on_new_process()
-    mp.queue_media("stock")
+    mp.queue_media("GIF Noel David 1.mp4")
