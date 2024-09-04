@@ -83,6 +83,7 @@ class MediaPlayer:
                 message = self.queue.get_nowait()
                 print(f"Received instruction to play: {message}")
             except Exception as e:
+                print("The media was not found in the dataset, or its name is invalid.")
                 raise e
             if message is not None:
                 self.update_active_media(message)
