@@ -12,10 +12,11 @@ import media_player
 
 BASE_PATH = Path.cwd()
 NUMBER_OF_VECTORS = 4
-CSV_PATH = BASE_PATH/'data/system-dataset[old-with-new-media].csv'
+CSV_PATH = BASE_PATH/'data/system-dataset[n6-media-and-keywords].csv'
 PURE_DATA_PATH = BASE_PATH/'pure-data/TateSemanticSoundNew.pd'
 EMBEDDINGS_PATH = BASE_PATH/'data/tate_wellcome_SEA_text_embeddings.npy'
 LED_MATRIX_PATH = Path('/dev/tty.usbmodem2101')
+LARGE_MATRIX_PATH = Path('/dev/tty.usbmodem11301')
 ARDUINO_PATH = Path('/dev/tty.usbmodem2201')
 JSON_PATH = BASE_PATH/'data/country_tracks.json'
 DELAY = 1
@@ -23,7 +24,7 @@ GIFS_PATH = BASE_PATH/'data/gifs/'
 VIDS_PATH = BASE_PATH/'data/vids/'
 
 class MainProgram: 
-    def __init__(self, CSV_path = CSV_PATH, num_vectors = NUMBER_OF_VECTORS, pure_data_path = PURE_DATA_PATH, embeddings_path = EMBEDDINGS_PATH, led_matrix_path = LED_MATRIX_PATH, arduino_path = ARDUINO_PATH, json_path = JSON_PATH, delay = DELAY): 
+    def __init__(self, CSV_path = CSV_PATH, num_vectors = NUMBER_OF_VECTORS, pure_data_path = PURE_DATA_PATH, embeddings_path = EMBEDDINGS_PATH, led_matrix_path = LED_MATRIX_PATH, large_matrix_path = LARGE_MATRIX_PATH, arduino_path = ARDUINO_PATH, json_path = JSON_PATH, delay = DELAY): 
         try:  
             self.delay = delay
             self.positive_client = semantic_client.SemanticClient("127.0.0.1", 9000)
@@ -32,6 +33,8 @@ class MainProgram:
             self.data_processor = data_processor.DataProcessor(CSV_path, self.semantic_init)
             self.LED_matrix = serial_com.SerialCommunication(led_matrix_path)
             self.LED_matrix.connect_serial()
+            self.large_matrix = serial_com.SerialCommunication(large_matrix_path)
+            self.large_matrix.connect_serial()
             self.arduino = serial_com.SerialCommunication(arduino_path)
             self.arduino.connect_serial()
             self.ding_model = ding.DingModel(self.arduino, json_path, base_path=BASE_PATH)
@@ -39,6 +42,18 @@ class MainProgram:
             self.media_player.start_on_new_process()
         except Exception as e:
             print(f'Error initialising main program! {e}')
+
+    def intialisation(self):
+        sleep(5)
+        #this tests and initialises the program
+        self.LED_matrix.send_serial('READING DATA...')
+        self.large_matrix.send_serial('READING DATA...')
+        #to do: add another matrix
+
+        # East Timor plays the nan country track which triggers all solenoids
+        self.ding_model.run('East Timor')
+
+        self.media_player.queue_media('GIF Wellcome archives 3.mp4')
 
     def semantic_model(self, label, vectors):
         if label == 1:
@@ -53,14 +68,19 @@ class MainProgram:
 
     def run(self):
         try:
+
+            self.intialisation()
+
             while True:
                 try:
                     row = self.data_processor.get_random_row()
                     vectors = [float(value) for value in row['Vectors']]
                     print(f"Processing index: {row.name}, Countries: {row['Countries']}, Keywords: {row['Keywords']}  Label and vectors: {[row['Label']] +  list(row['Vectors'])}")
 
-                    if pd.notnull(row['Keywords']): self.LED_matrix.send_serial(row['Keywords'])
-            
+                    if pd.notnull(row['Keywords']): 
+                        self.LED_matrix.send_serial(row['Keywords'])
+                        self.large_matrix.send_serial(row['Keywords'])
+                    
                     if pd.notnull(row['Media']): 
                         self.media_player.queue_media(row['Media']) 
                         print(f'found media {row["Media"]}')
