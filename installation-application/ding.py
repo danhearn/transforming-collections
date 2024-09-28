@@ -30,7 +30,7 @@ class DingModel:
         for i in countries:
             if i == "Malaysia" or i == "Vietnam" or i == "Singapore" or i == "Indonesia" or i == "Thailand":
                 self.track_selector(i.lower(), 2)
-            elif i == "Myanmar" or i == "Cambodia" or i == "Laos" or i =="Philippines":
+            elif i == "Myanmar" or i == "Cambodia" or i == "Laos" or i =="Philippines" or i =="East Timor":
                 self.track_selector(i.lower(), 1)
             else: 
                 self.track_selector("no-country", 1)

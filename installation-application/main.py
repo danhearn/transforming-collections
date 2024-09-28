@@ -19,7 +19,7 @@ LED_MATRIX_PATH = Path('/dev/tty.usbmodem2101')
 LARGE_MATRIX_PATH = Path('/dev/tty.usbmodem11301')
 ARDUINO_PATH = Path('/dev/tty.usbmodem2201')
 JSON_PATH = BASE_PATH/'data/country_tracks.json'
-DELAY = 1
+DELAY = 5
 GIFS_PATH = BASE_PATH/'data/gifs/'
 VIDS_PATH = BASE_PATH/'data/vids/'
 

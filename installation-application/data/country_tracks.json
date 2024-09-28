@@ -31,6 +31,9 @@
   "philippines": {
     "track1":"data/midi/PHIL.mid"
   },
+  "east timor": {
+    "track1": "data/midi/EAST_TIMOR.mid"
+  },
   "no-country": {
     "track1":"data/midi/NO_COUNTRY.mid"
   }
