@@ -17,10 +17,8 @@ class SerialCommunication:
            return print(f'Serial {self.device_path} is not available')
         
     def sanitise_message(self, message):
-    # Replace ellipsis with three full stops
         message = str(message)
         message = message.replace('…', '...')
-        # Filter out non-ASCII characters or replace them with '?'
         return ''.join([char if ord(char) < 128 else '?' for char in message])
 
     def send_serial(self, message):
