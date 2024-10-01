@@ -46,12 +46,24 @@ class MainProgram:
     def intialisation(self):
         sleep(5)
         #this tests and initialises the program
+        self.LED_matrix.send_serial('STARTUP TEST')
+        self.large_matrix.send_serial('STARTUP TEST')
+
+        self.ding_model.run(['no-country'])
+        self.ding_model.run(['East Timor'])
+        self.ding_model.run(['Vietnam'])
+        self.ding_model.run(['Myanmar'])
+        self.ding_model.run(['Philippines'])
+        self.ding_model.run(['Singapore'])
+        self.ding_model.run(['Indonesia'])
+        self.ding_model.run(['Thailand'])
+        self.ding_model.run(['Cambodia'])
+        self.ding_model.run(['Laos'])
+        self.ding_model.run(['Malaysia'])
+        self.ding_model.run(['no-country'])
+        
         self.LED_matrix.send_serial('READING DATA...')
         self.large_matrix.send_serial('READING DATA...')
-        #to do: add another matrix
-
-        # East Timor plays the nan country track which triggers all solenoids
-        self.ding_model.run('East Timor')
 
         self.media_player.queue_media('GIF Wellcome archives 3.mp4')
 
@@ -70,12 +82,15 @@ class MainProgram:
         try:
 
             self.intialisation()
+            
+            loop_counter = 0
 
             while True:
                 try:
+                    
                     row = self.data_processor.get_random_row()
                     vectors = [float(value) for value in row['Vectors']]
-                    print(f"Processing index: {row.name}, Countries: {row['Countries']}, Keywords: {row['Keywords']}  Label and vectors: {[row['Label']] +  list(row['Vectors'])}")
+                    print(f"Processing index: {row.name}, Countries: {repr(row['Countries'])}, Keywords: {row['Keywords']}  Label and vectors: {[row['Label']] +  list(row['Vectors'])}")
 
                     if pd.notnull(row['Keywords']): 
                         self.LED_matrix.send_serial(row['Keywords'])
@@ -87,7 +102,17 @@ class MainProgram:
     
                     self.semantic_model(row['Label'], vectors)
 
-                    if isinstance(row['Countries'], list) and len(row['Countries']) > 0: self.ding_model.run(row['Countries'])
+                    if isinstance(row['Countries'], list) and len(row['Countries']) > 0: 
+                        self.ding_model.run(row['Countries']) 
+                    else: 
+                        self.ding_model.run(['no-country'])
+                    
+                    if loop_counter == 10:
+                        print('sleeping for 60 seconds')
+                        sleep(60)
+                        loop_counter = 0
+                    
+                    loop_counter += 1
 
                     sleep(self.delay) 
                 except Exception as e:
