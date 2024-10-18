@@ -6,3 +6,5 @@ Pure Data by Garin Curtis, Daniel Manz.
 Additional Credits:
 Installation Design by Daniele Di Paolo 
 Installation Technician's & Technologists: Hannah Petter, Rosie Walker
+
+Trial
