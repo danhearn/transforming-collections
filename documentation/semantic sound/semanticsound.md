@@ -1,6 +1,6 @@
 # Semantic Sound Documentation
 
-This section discusses the methodology behing the semantic sound data sonification schemata, implemented in the pure data patches (link the pure data patches when they're uploaded). There are 2 separate channels: museum and archive. 
+This section discusses the methodology behing the semantic sound data sonification schemata, implemented in the [pure data patches](https://github.com/danhearn/transforming-collections/tree/pure-data/Pure%20Data). There are 2 separate channels: museum and archive. 
 
 ## Museum
 
